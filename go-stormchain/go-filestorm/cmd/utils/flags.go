@@ -39,6 +39,7 @@ import (
 	"github.com/filestorm/go-filestorm/consensus"
 	"github.com/filestorm/go-filestorm/consensus/clique"
 	"github.com/filestorm/go-filestorm/consensus/fstash"
+	"github.com/filestorm/go-filestorm/consensus/pbft"
 	"github.com/filestorm/go-filestorm/core"
 	"github.com/filestorm/go-filestorm/core/vm"
 	"github.com/filestorm/go-filestorm/crypto"
@@ -1674,6 +1675,8 @@ func MakeChain(ctx *cli.Context, stack *node.Node) (chain *core.BlockChain, chai
 	var engine consensus.Engine
 	if config.Clique != nil {
 		engine = clique.New(config.Clique, chainDb)
+	} else if config.Pbft != nil {
+		engine = pbft.New(config.Pbft, chainDb)
 	} else {
 		engine = fstash.NewFaker()
 		if !ctx.GlobalBool(FakePoWFlag.Name) {

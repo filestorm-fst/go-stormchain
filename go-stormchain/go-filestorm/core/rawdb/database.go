@@ -20,14 +20,15 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
+	"time"
+
 	"github.com/filestorm/go-filestorm/common"
 	"github.com/filestorm/go-filestorm/fstdb"
 	"github.com/filestorm/go-filestorm/fstdb/leveldb"
 	"github.com/filestorm/go-filestorm/fstdb/memorydb"
 	"github.com/filestorm/go-filestorm/log"
-	"os"
-	"time"
-	
+
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -242,6 +243,7 @@ func InspectDatabase(db fstdb.Database) error {
 		preimageSize    common.StorageSize
 		bloomBitsSize   common.StorageSize
 		cliqueSnapsSize common.StorageSize
+		pbftSnapsSize   common.StorageSize
 
 		// Ancient store statistics
 		ancientHeaders  common.StorageSize
@@ -286,6 +288,8 @@ func InspectDatabase(db fstdb.Database) error {
 			bloomBitsSize += size
 		case bytes.HasPrefix(key, []byte("clique-")) && len(key) == 7+common.HashLength:
 			cliqueSnapsSize += size
+		case bytes.HasPrefix(key, []byte("pbft-")) && len(key) == 7+common.HashLength:
+			pbftSnapsSize += size
 		case bytes.HasPrefix(key, []byte("cht-")) && len(key) == 4+common.HashLength:
 			chtTrieNodes += size
 		case bytes.HasPrefix(key, []byte("blt-")) && len(key) == 4+common.HashLength:
@@ -332,6 +336,7 @@ func InspectDatabase(db fstdb.Database) error {
 		{"Key-Value store", "Trie nodes", trieSize.String()},
 		{"Key-Value store", "Trie preimages", preimageSize.String()},
 		{"Key-Value store", "Clique snapshots", cliqueSnapsSize.String()},
+		{"Key-Value store", "Pbft snapshots", pbftSnapsSize.String()},
 		{"Key-Value store", "Singleton metadata", metadata.String()},
 		{"Ancient store", "Headers", ancientHeaders.String()},
 		{"Ancient store", "Bodies", ancientBodies.String()},
