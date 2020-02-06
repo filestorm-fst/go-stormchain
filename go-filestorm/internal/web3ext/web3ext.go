@@ -22,6 +22,7 @@ var Modules = map[string]string{
 	"admin":      AdminJs,
 	"chequebook": ChequebookJs,
 	"clique":     CliqueJs,
+	"pbft":       PbftJs,
 	"fstash":     FstashJs,
 	"debug":      DebugJs,
 	"fst":        FstJs,
@@ -112,6 +113,57 @@ web3._extend({
 		new web3._extend.Property({
 			name: 'proposals',
 			getter: 'clique_proposals'
+		}),
+	]
+});
+`
+
+const PbftJs = `
+web3._extend({
+	property: 'pbft',
+	methods: [
+		new web3._extend.Method({
+			name: 'getSnapshot',
+			call: 'pbft_getSnapshot',
+			params: 1,
+			inputFormatter: [web3._extend.utils.fromDecimal]
+		}),
+		new web3._extend.Method({
+			name: 'getSnapshotAtHash',
+			call: 'pbft_getSnapshotAtHash',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'getSigners',
+			call: 'pbft_getSigners',
+			params: 1,
+			inputFormatter: [web3._extend.utils.fromDecimal]
+		}),
+		new web3._extend.Method({
+			name: 'getSignersAtHash',
+			call: 'pbft_getSignersAtHash',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'propose',
+			call: 'pbft_propose',
+			params: 2
+		}),
+		new web3._extend.Method({
+			name: 'discard',
+			call: 'pbft_discard',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'status',
+			call: 'pbft_status',
+			params: 0
+		}),
+	],
+	properties: [
+		new web3._extend.Property({
+			name: 'proposals',
+			getter: 'pbft_proposals'
 		}),
 	]
 });

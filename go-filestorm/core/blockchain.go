@@ -20,6 +20,14 @@ package core
 import (
 	"errors"
 	"fmt"
+	"io"
+	"math/big"
+	mrand "math/rand"
+	"sort"
+	"sync"
+	"sync/atomic"
+	"time"
+
 	"github.com/filestorm/go-filestorm/common"
 	"github.com/filestorm/go-filestorm/common/mclock"
 	"github.com/filestorm/go-filestorm/common/prque"
@@ -36,13 +44,6 @@ import (
 	"github.com/filestorm/go-filestorm/rlp"
 	"github.com/filestorm/go-filestorm/trie"
 	lru "github.com/hashicorp/golang-lru"
-	"io"
-	"math/big"
-	mrand "math/rand"
-	"sort"
-	"sync"
-	"sync/atomic"
-	"time"
 )
 
 var (
@@ -1597,7 +1598,7 @@ func (bc *BlockChain) insertChain(chain types.Blocks, verifySeals bool) (int, er
 		// its header and body was already in the database).
 		if err == ErrKnownBlock {
 			logger := log.Debug
-			if bc.chainConfig.Clique == nil {
+			if bc.chainConfig.Clique == nil && bc.chainConfig.Pbft == nil {
 				logger = log.Warn
 			}
 			logger("Inserted known block", "number", block.Number(), "hash", block.Hash(),

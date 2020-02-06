@@ -18,6 +18,9 @@ package external
 
 import (
 	"fmt"
+	"math/big"
+	"sync"
+
 	"github.com/filestorm/go-filestorm"
 	"github.com/filestorm/go-filestorm/accounts"
 	"github.com/filestorm/go-filestorm/common"
@@ -28,9 +31,6 @@ import (
 	"github.com/filestorm/go-filestorm/log"
 	"github.com/filestorm/go-filestorm/rpc"
 	"github.com/filestorm/go-filestorm/signer/core"
-	"math/big"
-	"sync"
-
 )
 
 type ExternalBackend struct {
@@ -164,6 +164,10 @@ func (api *ExternalSigner) SignData(account accounts.Account, mimeType string, d
 	// If V is on 27/28-form, convert to to 0/1 for Clique
 	if mimeType == accounts.MimetypeClique && (res[64] == 27 || res[64] == 28) {
 		res[64] -= 27 // Transform V from 27/28 to 0/1 for Clique use
+	}
+	// If V is on 27/28-form, convert to to 0/1 for Pbft
+	if mimeType == accounts.MimetypePbft && (res[64] == 27 || res[64] == 28) {
+		res[64] -= 27 // Transform V from 27/28 to 0/1 for Pbft use
 	}
 	return res, nil
 }

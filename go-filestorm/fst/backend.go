@@ -20,6 +20,11 @@ package fst
 import (
 	"errors"
 	"fmt"
+	"math/big"
+	"runtime"
+	"sync"
+	"sync/atomic"
+
 	"github.com/filestorm/go-filestorm/accounts"
 	"github.com/filestorm/go-filestorm/accounts/abi/bind"
 	"github.com/filestorm/go-filestorm/common"
@@ -27,16 +32,17 @@ import (
 	"github.com/filestorm/go-filestorm/consensus"
 	"github.com/filestorm/go-filestorm/consensus/clique"
 	"github.com/filestorm/go-filestorm/consensus/fstash"
+	"github.com/filestorm/go-filestorm/consensus/pbft"
 	"github.com/filestorm/go-filestorm/core"
 	"github.com/filestorm/go-filestorm/core/bloombits"
 	"github.com/filestorm/go-filestorm/core/rawdb"
 	"github.com/filestorm/go-filestorm/core/types"
 	"github.com/filestorm/go-filestorm/core/vm"
+	"github.com/filestorm/go-filestorm/event"
 	"github.com/filestorm/go-filestorm/fst/downloader"
 	"github.com/filestorm/go-filestorm/fst/filters"
 	"github.com/filestorm/go-filestorm/fst/gasprice"
 	"github.com/filestorm/go-filestorm/fstdb"
-	"github.com/filestorm/go-filestorm/event"
 	"github.com/filestorm/go-filestorm/internal/fstapi"
 	"github.com/filestorm/go-filestorm/log"
 	"github.com/filestorm/go-filestorm/miner"
@@ -46,12 +52,6 @@ import (
 	"github.com/filestorm/go-filestorm/params"
 	"github.com/filestorm/go-filestorm/rlp"
 	"github.com/filestorm/go-filestorm/rpc"
-	"math/big"
-	"runtime"
-	"sync"
-	"sync/atomic"
-
-
 )
 
 type LesServer interface {
@@ -247,6 +247,9 @@ func CreateConsensusEngine(ctx *node.ServiceContext, chainConfig *params.ChainCo
 	if chainConfig.Clique != nil {
 		return clique.New(chainConfig.Clique, db)
 	}
+	if chainConfig.Pbft != nil {
+		return pbft.New(chainConfig.Pbft, db)
+	}
 	// Otherwise assume proof-of-work
 	switch config.PowMode {
 	case fstash.ModeFake:
@@ -416,6 +419,9 @@ func (s *Filestorm) shouldPreserve(block *types.Block) bool {
 	if _, ok := s.engine.(*clique.Clique); ok {
 		return false
 	}
+	if _, ok := s.engine.(*pbft.Pbft); ok {
+		return false
+	}
 	return s.isLocalBlock(block)
 }
 
@@ -464,6 +470,14 @@ func (s *Filestorm) StartMining(threads int) error {
 				return fmt.Errorf("signer missing: %v", err)
 			}
 			clique.Authorize(eb, wallet.SignData)
+		}
+		if pbft, ok := s.engine.(*pbft.Pbft); ok {
+			wallet, err := s.accountManager.Find(accounts.Account{Address: eb})
+			if wallet == nil || err != nil {
+				log.Error("Etherbase account unavailable locally", "err", err)
+				return fmt.Errorf("signer missing: %v", err)
+			}
+			pbft.Authorize(eb, wallet.SignData)
 		}
 		// If mining is started, we can disable the transaction rejection mechanism
 		// introduced to speed sync times.
