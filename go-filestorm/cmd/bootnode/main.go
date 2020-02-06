@@ -146,6 +146,6 @@ func printNotice(nodeKey *ecdsa.PublicKey, addr net.UDPAddr) {
 	}
 	n := enode.NewV4(nodeKey, addr.IP, 0, addr.Port)
 	fmt.Println(n.URLv4())
-	fmt.Println("Note: you're using cmd/bootnode, a developer tool.")
-	fmt.Println("We recommend using a regular node as bootstrap node for production deployments.")
+	fmt.Println("Note: bootnode is recommended only for private or federated blockchain.")
+	//fmt.Println("We recommend using a regular node as bootstrap node for production deployments.")
 }

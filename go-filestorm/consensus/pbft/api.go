@@ -32,8 +32,8 @@ type API struct {
 	pbft  *Pbft
 }
 
-// GetSnapshot retrieves the state snapshot at a given block.
-func (api *API) GetSnapshot(number *rpc.BlockNumber) (*Snapshot, error) {
+// GetBlockStatusByNumber retrieves the state snapshot at a given block.
+func (api *API) GetBlockStatusByNumber(number *rpc.BlockNumber) (*Snapshot, error) {
 	// Retrieve the requested block number (or current if none requested)
 	var header *types.Header
 	if number == nil || *number == rpc.LatestBlockNumber {
@@ -48,8 +48,8 @@ func (api *API) GetSnapshot(number *rpc.BlockNumber) (*Snapshot, error) {
 	return api.pbft.snapshot(api.chain, header.Number.Uint64(), header.Hash(), nil)
 }
 
-// GetSnapshotAtHash retrieves the state snapshot at a given block.
-func (api *API) GetSnapshotAtHash(hash common.Hash) (*Snapshot, error) {
+// GetBlockStatusByHash retrieves the state snapshot at a given block.
+func (api *API) GetBlockStatusByHash(hash common.Hash) (*Snapshot, error) {
 	header := api.chain.GetHeaderByHash(hash)
 	if header == nil {
 		return nil, errUnknownBlock
@@ -57,8 +57,8 @@ func (api *API) GetSnapshotAtHash(hash common.Hash) (*Snapshot, error) {
 	return api.pbft.snapshot(api.chain, header.Number.Uint64(), header.Hash(), nil)
 }
 
-// GetSigners retrieves the list of authorized signers at the specified block.
-func (api *API) GetSigners(number *rpc.BlockNumber) ([]common.Address, error) {
+// GetValidatorsByNumber retrieves the list of authorized signers at the specified block.
+func (api *API) GetValidatorsByNumber(number *rpc.BlockNumber) ([]common.Address, error) {
 	// Retrieve the requested block number (or current if none requested)
 	var header *types.Header
 	if number == nil || *number == rpc.LatestBlockNumber {
@@ -77,8 +77,8 @@ func (api *API) GetSigners(number *rpc.BlockNumber) ([]common.Address, error) {
 	return snap.signers(), nil
 }
 
-// GetSignersAtHash retrieves the list of authorized signers at the specified block.
-func (api *API) GetSignersAtHash(hash common.Hash) ([]common.Address, error) {
+// GetValidatorsByHash retrieves the list of authorized signers at the specified block.
+func (api *API) GetValidatorsByHash(hash common.Hash) ([]common.Address, error) {
 	header := api.chain.GetHeaderByHash(hash)
 	if header == nil {
 		return nil, errUnknownBlock
@@ -90,8 +90,8 @@ func (api *API) GetSignersAtHash(hash common.Hash) ([]common.Address, error) {
 	return snap.signers(), nil
 }
 
-// Proposals returns the current proposals the node tries to uphold and vote on.
-func (api *API) Proposals() map[common.Address]bool {
+// Votes returns the current votes the node tries to uphold and vote on.
+func (api *API) Votes() map[common.Address]bool {
 	api.pbft.lock.RLock()
 	defer api.pbft.lock.RUnlock()
 
@@ -102,18 +102,18 @@ func (api *API) Proposals() map[common.Address]bool {
 	return proposals
 }
 
-// Propose injects a new authorization proposal that the signer will attempt to
+// Vote injects a new authorization vote that the signer will attempt to
 // push through.
-func (api *API) Propose(address common.Address, auth bool) {
+func (api *API) Vote(address common.Address, auth bool) {
 	api.pbft.lock.Lock()
 	defer api.pbft.lock.Unlock()
 
 	api.pbft.proposals[address] = auth
 }
 
-// Discard drops a currently running proposal, stopping the signer from casting
+// DropVote drops a currently running proposal, stopping the signer from casting
 // further votes (either for or against).
-func (api *API) Discard(address common.Address) {
+func (api *API) DropVote(address common.Address) {
 	api.pbft.lock.Lock()
 	defer api.pbft.lock.Unlock()
 
@@ -126,11 +126,11 @@ type status struct {
 	NumBlocks     uint64                 `json:"numBlocks"`
 }
 
-// Status returns the status of the last N blocks,
+// BlockStatus returns the status of the last N blocks,
 // - the number of active signers,
 // - the number of signers,
 // - the percentage of in-turn blocks
-func (api *API) Status() (*status, error) {
+func (api *API) BlockStatus() (*status, error) {
 	var (
 		numBlocks = uint64(64)
 		header    = api.chain.CurrentHeader()
