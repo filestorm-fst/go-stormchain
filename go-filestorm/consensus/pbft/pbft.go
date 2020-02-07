@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-filestorm library. If not, see <http://www.gnu.org/licenses/>.
 
-// Package pbft implements the proof-of-authority consensus engine.
+// Package pbft implements the practical Byzantine fault tolerance consensus engine.
 package pbft
 
 import (
@@ -701,7 +701,7 @@ func SealHash(header *types.Header) (hash common.Hash) {
 	return hash
 }
 
-// PbftRLP returns the rlp bytes which needs to be signed for the proof-of-authority
+// PbftRLP returns the rlp bytes which needs to be signed for practical Byzantine fault tolerance
 // sealing. The RLP to sign consists of the entire header apart from the 65 byte signature
 // contained at the end of the extra data.
 //
