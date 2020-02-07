@@ -32,6 +32,7 @@ require (
 	github.com/jteeuwen/go-bindata v3.0.7+incompatible // indirect
 	github.com/julienschmidt/httprouter v1.1.1-0.20170430222011-975b5c4c7c21
 	github.com/karalabe/usb v0.0.0-20190919080040-51dc0efba356
+	github.com/karalabe/xgo v0.0.0-20191115072854-c5ccff8648a7 // indirect
 	github.com/mattn/go-colorable v0.1.0
 	github.com/mattn/go-isatty v0.0.5-0.20180830101745-3fb116b82035
 	github.com/naoina/toml v0.1.2-0.20170918210437-9fafd6967416
