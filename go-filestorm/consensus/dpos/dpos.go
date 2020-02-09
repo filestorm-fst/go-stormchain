@@ -100,7 +100,7 @@ var (
 
 type Dpos struct {
 	config *params.DposConfig // Consensus engine configuration parameters
-	db     ethdb.Database     // Database to store and retrieve snapshot checkpoints
+	db     fstdb.Database     // Database to store and retrieve snapshot checkpoints
 
 	signer               common.Address
 	signFn               SignerFn

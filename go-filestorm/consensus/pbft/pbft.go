@@ -166,8 +166,7 @@ func ecrecover(header *types.Header, sigcache *lru.ARCCache) (common.Address, er
 	return signer, nil
 }
 
-// Pbft consensus engine proposed to support the
-// Filestorm testnet following the Ropsten attacks.
+// Pbft consensus engine implements the practical Byzantine fault tolerance consensus.
 type Pbft struct {
 	config *params.PbftConfig // Consensus engine configuration parameters
 	db     fstdb.Database     // Database to store and retrieve snapshot checkpoints

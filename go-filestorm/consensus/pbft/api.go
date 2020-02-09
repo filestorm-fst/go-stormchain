@@ -26,7 +26,7 @@ import (
 )
 
 // API is a user facing RPC API to allow controlling the signer and voting
-// mechanisms of the proof-of-authority scheme.
+// mechanisms of the practical Byzantine fault tolerance scheme.
 type API struct {
 	chain consensus.ChainReader
 	pbft  *Pbft
