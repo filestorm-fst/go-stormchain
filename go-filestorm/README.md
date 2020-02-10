@@ -1,20 +1,11 @@
 ## Go FileStorm
 
-Official Golang implementation of the Filestorm protocol.
-
-[![API Reference](
-https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/68747470733a2f2f676f646f632e6f72672f6769746875622e636f6d2f676f6c616e672f6764646f3f7374617475732e737667
-)](https://godoc.org/github.com/filestorm/go-filestorm)
-[![Go Report Card](https://goreportcard.com/badge/github.com/filestorm/go-filestorm)](https://goreportcard.com/report/github.com/filestorm/go-filestorm)
-[![Travis](https://travis-ci.org/filestorm/go-filestorm.svg?branch=master)](https://travis-ci.org/filestorm/go-filestorm)
-[![Discord](https://img.shields.io/badge/discord-join%20chat-blue.svg)](https://discord.gg/nthXNEv)
+Golang implementation of the Filestorm protocol.
 
 Automated builds are available for stable releases and the unstable master branch. Binary
-archives are published at https://storm.filestorm.org/downloads/.
+archives are published at https://github.com/filestorm-fst/go-stormchain.
 
 ## Building the source
-
-For prerequisites and detailed build instructions please read the [Installation Instructions](https://github.com/filestorm/go-filestorm/wiki/Building-Filestorm) on the wiki.
 
 Building `storm` requires both a Go (version 1.10 or later) and a C compiler. You can install
 them using your favourite package manager. Once the dependencies are installed, run
@@ -104,19 +95,6 @@ crossing over between the main network and test network, you should make sure to
 use separate accounts for play-money and real-money. Unless you manually move
 accounts, `storm` will by default correctly separate the two networks and will not make any
 accounts available between them.*
-
-### Full node on the Rinkeby test network
-
-The above test network is a cross-client one based on the fstash proof-of-work consensus
-algorithm. As such, it has certain extra overhead and is more susceptible to reorganization
-attacks due to the network's low difficulty/security. Go Filestorm also supports connecting
-to a proof-of-authority based test network called [*Rinkeby*](https://www.rinkeby.io)
-(operated by members of the community). This network is lighter, more secure, but is only
-supported by go-filestorm.
-
-```shell
-$ storm --rinkeby console
-```
 
 ### Configuration
 
@@ -210,14 +188,11 @@ aware of and agree upon. This consists of a small JSON file (e.g. call it `genes
 ```json
 {
   "config": {
-    "chainId": <arbitrary positive integer>,
-    "homesteadBlock": 0,
-    "eip150Block": 0,
-    "eip155Block": 0,
-    "eip158Block": 0,
-    "byzantiumBlock": 0,
-    "constantinopleBlock": 0,
-    "petersburgBlock": 0
+    "chainId": <arbitrary positive integer greater than 20090103>,
+    "pbft": {
+      "period": 7,
+      "epoch": 36000
+    }
   },
   "alloc": {},
   "coinbase": "0x0000000000000000000000000000000000000000",
@@ -266,7 +241,7 @@ $ bootnode --genkey=boot.key
 $ bootnode --nodekey=boot.key
 ```
 
-With the bootnode online, it will display an [`enode` URL](https://github.com/filestorm/wiki/wiki/enode-url-format)
+With the bootnode online, it will display an `enode`
 that other nodes can use to connect to it and exchange peer information. Make sure to
 replace the displayed IP address information (most probably `[::]`) with your externally
 accessible IP to get the actual `enode` URL.
