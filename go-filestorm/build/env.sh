@@ -28,3 +28,4 @@ PWD="$fstdir/go-filestorm"
 
 # Launch the arguments with the configured environment.
 exec "$@"
+
