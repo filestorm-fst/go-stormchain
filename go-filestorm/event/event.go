@@ -15,6 +15,7 @@
 // along with the go-filestorm library. If not, see <http://www.gnu.org/licenses/>.
 
 // Package event deals with subscriptions to real-time events.
+
 package event
 
 import (
