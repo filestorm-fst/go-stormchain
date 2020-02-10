@@ -11,7 +11,12 @@ FileStorm自主研发基于PBFT共识的区块链技术，支持国家监督和�
 
 ## 用户指南
 
-下载运行程序 storm （选择正确的操作系统）和创世文件 storm_chain.json
+下载运行程序 storm （选择正确的操作系统）
+Linux: storm-linux(https://github.com/filestorm-fst/go-stormchain/blob/master/storm-linux)
+Mac Os: storm-os(https://github.com/filestorm-fst/go-stormchain/blob/master/storm-os)
+
+和创世文件 
+storm_chain.json(https://github.com/filestorm-fst/go-stormchain/blob/master/storm_chain.json)
 
 将 storm 和 storm_chain.json 复制到需要安装的节点服务器上。在这个指南中，我们将使用三台装有 Ubuntu 操作系统的服务器。（Storm区块链至少需要两个节点才能运行。）在服务器上，可以建立新文件夹 storm_node 作为节点运行根目录。将两个文件存到这个目录下。
 
