@@ -138,7 +138,7 @@ storm-windows-386:
 	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=windows/386 -v ./cmd/storm
 	@echo "Windows 386 cross compilation done:"
 	@ls -ld $(GOBIN)/storm-windows-* | grep 386
-
+ 
 storm-windows-amd64:
 	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=windows/amd64 -v ./cmd/storm
 	@echo "Windows amd64 cross compilation done:"
