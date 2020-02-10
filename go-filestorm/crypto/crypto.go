@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-filestorm library. If not, see <http://www.gnu.org/licenses/>.
 
-// will support SM2, SM3, SM4
+
 package crypto
 
 import (
