@@ -94,7 +94,7 @@ func newTester(t *testing.T, confOverride func(*fst.Config)) *tester {
 	// Create a networkless protocol stack and start an Filestorm service within
 	stack, err := node.New(&node.Config{DataDir: workspace, UseLightweightKDF: true, Name: testInstance})
 	if err != nil {
-		t.Fatalf("failed to create node: %v", err)
+		t.Fatalf("failed to create a node: %v", err)
 	}
 	ethConf := &fst.Config{
 		Genesis: core.DeveloperGenesisBlock(15, common.Address{}),
