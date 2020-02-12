@@ -82,7 +82,7 @@ $ echo 'password' > password.txt
 
 这是缺省的创世文件。其中需要解释和修改的配置为：
 
-* chainId： Storm区块链是一个多链生态，每个区块链都有一个ID，20090103是主链的ID，（第一个区块链Bitcoin的诞生日为01/03/2009）每一条使用Storm区块链技术的新链都可以使用任何一个大于20090103，且未被使用过的整数做为chainId。所有的链都可以在 http://explorer.filestorm.info 上查到。
+* chainId： Storm区块链是一个多链生态，每个区块链都有自己独立的ID，20090103是主链的ID，（第一个区块链Bitcoin的诞生日为01/03/2009）每一条使用Storm区块链技术的链都可以选择使用任意整数做为chainId。
 
 * pbft：这是风暴联盟链使用的共识，未来Storm区块链将会支持更多的共识机制。
 
@@ -102,13 +102,23 @@ $ echo 'password' > password.txt
 
 * 如果需要给多个账号通证，可以在这里加
 ``````````````````````````
+  "alloc":
+  {
+    "1111111111111111111111111111111111111111": {
+      "balance": "50000000000000000000000000"
+    },
     "2222222222222222222222222222222222222222": {
       "balance": "20000000000000000000000000"
-    },
+    }
+  }
 ``````````````````````````
-修改完以后将文件保存好。记得在三个节点上，创世文件必须一模一样。
 
-对于在MOAC公链上发布一条应用链，可以通过在MOAC主网上发布一个智能合约[ApplicationChain.sol](https://github.com/filestorm-fst/go-stormchain/blob/master/solidity/ApplicationChain.sol)，然后生成创世文件。具体介绍将来会有新的指南。
+注意：要在前一个}后面加个逗号。
+
+修改完以后将文件保存好。然后复制到其他两个节点上。一条区块链上的所有节点的创世文件必须一模一样。所以，以后需要建新节点，就到这三个节点这里拿创世文件。
+
+Storm技术支持在MOAC公链上发布一条应用链。可以通过在MOAC主网上发布一个智能合约[ApplicationChain.sol](https://github.com/filestorm-fst/go-stormchain/blob/master/solidity/ApplicationChain.sol)生成创世文件。具体介绍将来会有新的指南。
+
 
 ### 第三步 初始化节点
 
@@ -116,6 +126,11 @@ $ echo 'password' > password.txt
 
 ``````````````````````````````````
 $ ./storm --datadir data init storm_chain.json
+``````````````````````````````````
+
+节点初始化成功你会看到这样一条信息
+``````````````````````````````````
+INFO [02-08|12:50:17.448] Successfully wrote genesis state         database=lightchaindata hash=33b98a…e3f240
 ``````````````````````````````````
 
 ### 第四步 启动节点
@@ -134,7 +149,7 @@ $ ./storm --datadir data --networkid 20090103 --gasprice '0' --syncmode 'full' -
 
 * --port 30317 这是 Storm 区块链的通讯端口。缺省值为30303。这是一个可选项，如果在一台服务器上跑多个节点，就必须修改这个值。
 
-* --unlock '0x084149366635cD8E727d1eD50c363107b1b2a565' 这是解锁前面为这台服务器生成的管理员账号，让这个节点可以出块。
+* --unlock '0x084149366635cD8E727d1eD50c363107b1b2a565' 这里的数字记得要改成前面为这台服务器生成的管理员账号。解锁后，这个节点就可以出块。
 
 * --password password.txt 使用存在密码文件中的密码。
 
