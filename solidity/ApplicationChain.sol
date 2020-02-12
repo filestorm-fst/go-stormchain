@@ -1,4 +1,4 @@
-pragma solidity >=0.4.22 <0.6.0;
+pragma solidity >=0.4.22 <0.6.3;
 /**
  * @title ApplicationChain.sol
  * @author Raymond Fu
@@ -35,12 +35,16 @@ contract ApplicationChain {
     
     string extraData;
 
-    constructor(uint256 p, uint256 f, address[] initial_validators) public payable {
+    address public FOUNDATION_MOAC_AMOUNT_SETTING = "0x0000000000000000000000000000000000000000";
+
+    constructor(uint256 blockSec, uint256 flushNumber, address[] initial_validators) public payable {
         owner = msg.sender;
         chainId = block.number;
-        period = p;
-        flushEpoch = f;
+        period = blockSec;
+        flushEpoch = flushNumber;
         balance = msg.value;
+
+        require(balance > FOUNDATION_MOAC_AMOUNT_SETTING.balance);
         
         uint256 flushId = 1;
         flushMapping[flushId].flushId = 1;
@@ -51,15 +55,17 @@ contract ApplicationChain {
         }
         flushMapping[flushId].blockNumber = 1;
         flushMapping[flushId].blockHash = "";        
+
+        admins[msg.sender] = 1;
     }
     
     function addAdmin(address admin) public {
-        require(msg.sender == owner || admins[msg.sender] == 1);
+        require(admins[msg.sender] == 1);
         admins[admin] = 1;
     }
 
     function removeAdmin(address admin) public {
-        require(msg.sender == owner || admins[msg.sender] == 1);
+        require(admins[msg.sender] == 1 ｜｜ admin ！= msg.sender);
         admins[admin] = 0;
     }
 
@@ -68,7 +74,7 @@ contract ApplicationChain {
     }
     
     function withdrawFund(address recv, uint amount) public {
-        require(owner == msg.sender || admins[msg.sender] == 1);
+        require(admins[msg.sender] == 1);
         require(admins[recv] == 1);
         require(amount <= balance);
         
@@ -93,6 +99,8 @@ contract ApplicationChain {
                 flushList.push(flushId);
                 
                 // give reward to validators
+
+                return;
             }
         }
     }
@@ -113,7 +121,8 @@ contract ApplicationChain {
         '   "period": ',
         uint2str(period),
         ',',
-        '   "epoch": ',
+        '   "epoch": "36000",',
+        '   "epochFlush": ',
         uint2str(flushEpoch),
         '',
         '  }',
