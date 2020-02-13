@@ -1,8 +1,7 @@
-pragma solidity >=0.4.22 <0.6.3;
+pragma solidity =0.4.24 <0.6.3;
 /**
  * @title ApplicationChain.sol
  * @author Raymond Fu
- * @date: Feb 6, 2020
  * Stormchain can be registered on other blockchains as a
  * deligated application chain to support an application
  * using the tokens from the other chain.
@@ -20,7 +19,7 @@ contract ApplicationChain {
     uint256 public chainId;
     uint256 public period;
     uint256 public flushEpoch;
-    
+
     mapping(uint256=>flushRound) public flushMapping;
     uint256[] public flushList;
     
@@ -32,19 +31,25 @@ contract ApplicationChain {
         uint256 blockNumber;
         string blockHash;
     }
-    
+
     string extraData;
+    uint256 tokenTotal;
 
-    address public FOUNDATION_MOAC_AMOUNT_SETTING = "0x0000000000000000000000000000000000000000";
+    address public FOUNDATION_MOAC_AMOUNT_SETTING = 0x0000000000000000000000000000000000000000;
 
-    constructor(uint256 blockSec, uint256 flushNumber, address[] initial_validators) public payable {
+    // construct a chain with no token
+    constructor(uint256 blockSec, uint256 flushNumber, address[] initial_validators, uint256 exchangeRate) public payable {
+        
+        require(
+            msg.value > FOUNDATION_MOAC_AMOUNT_SETTING.balance,
+            "Not Enough MOAC to Create Application Chain"
+        );
+
         owner = msg.sender;
         chainId = block.number;
         period = blockSec;
         flushEpoch = flushNumber;
         balance = msg.value;
-
-        require(balance > FOUNDATION_MOAC_AMOUNT_SETTING.balance);
         
         uint256 flushId = 1;
         flushMapping[flushId].flushId = 1;
@@ -54,18 +59,21 @@ contract ApplicationChain {
             flushValidatorList[flushId].push(initial_validators[i]);
         }
         flushMapping[flushId].blockNumber = 1;
-        flushMapping[flushId].blockHash = "";        
+        flushMapping[flushId].blockHash = "";      
+
+        tokenTotal = msg.value * exchangeRate; 
 
         admins[msg.sender] = 1;
     }
-    
+
     function addAdmin(address admin) public {
-        require(admins[msg.sender] == 1);
+        require(admins[msg.sender] == 1, "Only Admins Can Add Another Admin.");
         admins[admin] = 1;
     }
 
     function removeAdmin(address admin) public {
-        require(admins[msg.sender] == 1 ｜｜ admin ！= msg.sender);
+        require(admins[msg.sender] == 1, "Only Admins Can Add Another Admin.");
+        require(admin != msg.sender, "Admins Cannot Remove Self.");
         admins[admin] = 0;
     }
 
@@ -105,12 +113,34 @@ contract ApplicationChain {
         }
     }
     
-    function getGenesisInfo() public returns (string) {
+    function getGenesisInfo() public view returns (string) {
         
-        string memory s = "";
+        string memory validString = "";
+        string memory allocString = "";
         for (uint i=0; i<flushValidatorList[1].length; i++){
-            s = string(abi.encodePacked(s, addr2str(flushValidatorList[1][0])));
+            validString = string(abi.encodePacked(validString, addr2str(flushValidatorList[1][i])));
         }
+
+        uint256 averageAmt = tokenTotal / flushValidatorList[1].length;
+        uint256 remainingAmt = tokenTotal - (averageAmt * (flushValidatorList[1].length - 1));
+        string memory comma = ",";
+        for (i=0; i<flushValidatorList[1].length; i++){
+            if (i==flushValidatorList[1].length-1){
+                averageAmt = remainingAmt;
+                comma = "";
+            }
+            allocString = string(abi.encodePacked(allocString, 
+            '    "',
+            addr2str(flushValidatorList[1][i]),
+            '": {',
+            '      "balance": "',
+            uint2str(averageAmt),
+            '"',
+            '    }',
+            comma
+            ));
+        }
+
         return string(abi.encodePacked('{',
         '{',
         ' "config": {',
@@ -122,21 +152,23 @@ contract ApplicationChain {
         uint2str(period),
         ',',
         '   "epoch": "36000",',
-        '   "epochFlush": ',
+        '   "epochFlush": "',
         uint2str(flushEpoch),
-        '',
+        '"',
         '  }',
         ' },',
         '  "nonce": "0x0",',
         '  "timestamp": "0x5de22b51",',
         '  "extraData": "0x0000000000000000000000000000000000000000000000000000000000000000',
-        s,
+        validString,
         '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",',
         '  "gasLimit": "0x47b760",',
         '  "difficulty": "0x1",',
         '  "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",',
         '  "coinbase": "0x0000000000000000000000000000000000000000",',
-        '  "alloc": {},',
+        '  "alloc": {',
+        allocString,
+        '},',
         '  "number": "0x0",',
         '  "gasUsed": "0x0",',
         '  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000"',
@@ -174,7 +206,6 @@ contract ApplicationChain {
     }
 }
 
-pragma solidity ^0.4.22;
 
 /**
  * @title SafeMath
