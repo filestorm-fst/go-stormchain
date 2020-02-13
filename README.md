@@ -117,7 +117,7 @@ $ echo 'password' > password.txt
 
 修改完以后将文件保存好。然后复制到其他两个节点上。一条区块链上的所有节点的创世文件必须一模一样。所以，以后需要建新节点，就到这三个节点这里拿创世文件。
 
-Storm技术支持在MOAC公链上发布一条应用链。可以通过在MOAC主网上发布一个智能合约[ApplicationChain.sol](https://github.com/filestorm-fst/go-stormchain/blob/master/solidity/ApplicationChain.sol)生成创世文件。具体介绍将来会有新的指南。
+Storm技术支持在MOAC公链上发布一条应用链。可以通过在MOAC主网上发布一个智能合约生成创世文件。具体介绍可以看[这里](https://github.com/filestorm-fst/go-stormchain/tree/master/solidity)。
 
 
 ### 第三步 初始化节点
@@ -218,8 +218,11 @@ $ ./storm attach data/storm.ipc
 ``````````````````````````````````
 > admin.addPeer("enode://0e3a9317c4c9e8910e5d34f627ab798ac0814ac732cb433db4d73382a39c1cb2e8fd35fc53ad406f5883f86a45bc9fb083503ed357ed1a07b5c0a078815c534f@[::]:30317")
 ``````````````````````````````````
+这时候，新节点还不能验证出块，只能接受区块信息，也就是同步节点。
 
-这时候，新节点还不能验证出块，只能接受区块信息，也就是同步节点。如果同步节点想要成为出块节点，就必须遵守所用共识机制。本指南采用的是pbft共识，增加新节点，必须通过验证节点投票，得到超过50%的赞同票就可以成为验证节点。下面，我们就来看看验证节点的投票功能。
+如果需要在stormchain上做开发，建议使用同步节点。如何在stormchain上做开发，可以查看[wiki](https://github.com/filestorm-fst/go-stormchain/wiki/Development)。
+
+如果同步节点想要成为出块节点，就必须遵守所用共识机制。本指南采用的是pbft共识，增加新节点，必须通过验证节点投票，得到超过50%的赞同票就可以成为验证节点。下面，我们就来看看验证节点的投票功能。
 
 
 ### 第七步 验证节点投票
