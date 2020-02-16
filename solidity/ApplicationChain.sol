@@ -1,11 +1,10 @@
 pragma solidity =0.4.24 <0.6.3;
 /**
  * @title ApplicationChain.sol
- * @author Raymond Fu
  * Stormchain can be registered on other blockchains as a
  * deligated application chain to support an application
  * using the tokens from the other chain.
- * This is used to generate applications from MOAC blockchain.
+ * This is the first step of building an application chain.
  */
 
 contract ApplicationChain {
@@ -35,13 +34,15 @@ contract ApplicationChain {
     string extraData;
     uint256 tokenTotal;
 
-    address public FOUNDATION_MOAC_AMOUNT_SETTING = 0x0000000000000000000000000000000000000000;
+    uint256 public FOUNDATION_MOAC_REQUIRED_AMOUNT = 20 * 10 ** 18;
+    uint256 public FLUSH_AMOUNT = 1 * 10 ** 17;
+    address public FOUNDATION_BLACK_HOLE_ADDRESS = 0x48328afc8dd45c1c252e7e883fc89bd17ddee7c0;
 
     // construct a chain with no token
     constructor(uint256 blockSec, uint256 flushNumber, address[] initial_validators, uint256 exchangeRate) public payable {
         
         require(
-            msg.value > FOUNDATION_MOAC_AMOUNT_SETTING.balance,
+            msg.value >= FOUNDATION_MOAC_REQUIRED_AMOUNT,
             "Not Enough MOAC to Create Application Chain"
         );
 
@@ -51,19 +52,28 @@ contract ApplicationChain {
         flushEpoch = flushNumber;
         balance = msg.value;
         
-        uint256 flushId = 1;
-        flushMapping[flushId].flushId = 1;
+        uint256 flushId = 0;
+        flushMapping[flushId].flushId = flushId;
         flushMapping[flushId].validator = msg.sender;
-        uint i;
-        for (i=0; i<initial_validators.length; i++){
+        for (uint i=0; i<initial_validators.length; i++){
             flushValidatorList[flushId].push(initial_validators[i]);
         }
         flushMapping[flushId].blockNumber = 1;
         flushMapping[flushId].blockHash = "";      
+        flushList.push(flushId);
 
         tokenTotal = msg.value * exchangeRate; 
 
         admins[msg.sender] = 1;
+        
+        // OPTIONAL: Give some gas fee to initial validators.
+        // uint256 GAS_FEE = 2 * 10 ** 14;
+        // uint256 gasNeededEach = balance / FLUSH_AMOUNT * GAS_FEE / initial_validators.length;
+        // uint256 gasNeededTotal = gasNeededEach * initial_validators.length;
+        // for (i=0; i<initial_validators.length; i++){
+        //     initial_validators[i].transfer(gasNeededEach);
+        // }
+        // End of Option
     }
 
     function addAdmin(address admin) public {
@@ -83,31 +93,33 @@ contract ApplicationChain {
     
     function withdrawFund(address recv, uint amount) public {
         require(admins[msg.sender] == 1);
-        require(admins[recv] == 1);
+        //require(admins[recv] == 1);
         require(amount <= balance);
         
+        balance -= amount;
         recv.transfer(amount);
     }
 
     function flush(address[] current_validators, uint256 blockNumber, string blockHash) public {
-        uint256 flushId = flushList.length;
-        uint i;
-        for (i=1; i<=flushValidatorList[flushId].length; i++){
-            if (flushValidatorList[flushId][i]==msg.sender &&
+        uint256 flushId = flushList.length-1;
+        for (uint i=0; i<flushValidatorList[flushId].length; i++){
+            if ((flushValidatorList[flushId][i]==msg.sender ||
+                admins[msg.sender] == 1 ) &&
                 flushMapping[flushId].blockNumber + flushEpoch == blockNumber){
-                flushId = flushList.length + 1;
+
+                flushId++;
                 flushMapping[flushId].flushId = flushId;
                 flushMapping[flushId].validator = msg.sender;
-                uint j;
-                for (j=0; j<current_validators.length; j++){
+                for (uint j=0; j<current_validators.length; j++){
                         flushValidatorList[flushId].push(current_validators[j]);
                     }
                 flushMapping[flushId].blockNumber = blockNumber;
                 flushMapping[flushId].blockHash = blockHash;  
                 flushList.push(flushId);
                 
-                // give reward to validators
-
+                // sent MOAC to FOUNDATION_BLACK_HOLE_ADDRESS;
+                balance -= FLUSH_AMOUNT;
+                FOUNDATION_BLACK_HOLE_ADDRESS.transfer(FLUSH_AMOUNT);
                 return;
             }
         }
