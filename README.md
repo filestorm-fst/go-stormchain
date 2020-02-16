@@ -52,6 +52,10 @@ $ echo 'password' > password.txt
 
 ### 第二步 修改创世文件
 
+Storm技术支持在MOAC公链上发布一条应用链。可以通过在MOAC主网上发布一个智能合约生成创世文件。具体介绍可以看[这里](https://github.com/filestorm-fst/go-stormchain/tree/master/solidity)。
+
+也可以对生成的创世文件可以做如下修改。
+
 ```````````````````````
 {
   "config": {
@@ -82,7 +86,7 @@ $ echo 'password' > password.txt
 
 这是缺省的创世文件。其中需要解释和修改的配置为：
 
-* chainId： Storm区块链是一个多链生态，每个区块链都有自己独立的ID，20090103是主链的ID，（第一个区块链Bitcoin的诞生日为01/03/2009）每一条使用Storm区块链技术的链都可以选择使用任意整数做为chainId。
+* chainId： Storm区块链是一个多链生态，每个区块链都有自己独立的ID，20090103是主链的ID，（第一个区块链Bitcoin的诞生日为01/03/2009），联盟链可以采用任何整数进行测试。MOAC应用链通过发合约注册到基础链可得到认证的chainId。
 
 * pbft：这是风暴联盟链使用的共识，未来Storm区块链将会支持更多的共识机制。
 
@@ -116,9 +120,6 @@ $ echo 'password' > password.txt
 注意：要在前一个}后面加个逗号。
 
 修改完以后将文件保存好。然后复制到其他两个节点上。一条区块链上的所有节点的创世文件必须一模一样。所以，以后需要建新节点，就到这三个节点这里拿创世文件。
-
-Storm技术支持在MOAC公链上发布一条应用链。可以通过在MOAC主网上发布一个智能合约生成创世文件。具体介绍可以看[这里](https://github.com/filestorm-fst/go-stormchain/tree/master/solidity)。
-
 
 ### 第三步 初始化节点
 
