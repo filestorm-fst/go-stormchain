@@ -12,11 +12,19 @@ StormChain通过实现PBFT共识，为MOAC打造了一条联盟链。为应用�
 
 * blockSec - 出块速度。也就是多少秒出一次块。MOAC联盟链采用PBFT共识，每个区块都是终极确认，出块速度非常固定。缺省设置为7秒，但用户可以选择任何整数。
 
-* flushNumber - 隔多少个应用链区块需要刷新一次。刷新越多，主链对联盟链的背书越强。但是消耗的MOAC也越多。建议根据应用链上的应用需求来决定是每小时，每天，还是每月进行一次刷新。刷新最少需要0.01个MOAC。
+* flushNumber - 隔多少个应用链区块需要刷新一次。刷新越多，主链对联盟链的背书越强。但是消耗的MOAC也越多。建议根据应用链上的应用需求来决定是每小时，每天，还是每月进行一次刷新。刷新MOAC个数在这里定：`uint256 public FLUSH_AMOUNT = 1 * 10 ** 17;`。
+
+(如果出块速度定为10秒，刷新块数定为360，就是大概每小时刷新一次。）
+
+* 刷新MOAC将进入MOAC基金会黑洞地址 `FOUNDATION_BLACK_HOLE_ADDRESS = 0x48328afc8dd45c1c252e7e883fc89bd17ddee7c0`。
 
 * initial_validators 创世验证人列表。MOAC联盟链是授权联盟链。所以要设定一组创世验证人的地址。
 
-* 最后，注册生成MOAC联盟应用链需要支付MOAC，最少多少个由墨客基金会通过对一个固定钱包地址转账数量来指定。
+`["0x53e5c08cb895599e7cfa5da58a783a56e9f140db", "0x14723A09ACff6D2A60DcdF7aA4AFf308FDDC160C"]`
+
+* exchangeRate 质押的MOAC是否要兑换成子链原生币，兑换比例是多少。需要一个整数。
+
+* 最后，注册生成MOAC联盟应用链需要支付MOAC，最少支付数量由这个参数来定。`FOUNDATION_MOAC_REQUIRED_AMOUNT = 20 * 10 ** 18;`
 
 任何人可以通过调用 addFund() 函数往合约里加钱。
 
