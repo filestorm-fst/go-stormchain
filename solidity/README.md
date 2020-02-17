@@ -34,7 +34,10 @@ StormChain通过实现PBFT共识，为MOAC打造了一条联盟链。为应用�
 
 合约部署成功后，可以通过调用 getGenesisInfo() 拿到MOAC联盟应用链的创世文件。MOAC联盟应用链的ChainID，就是合约生成的MOAC基础链区块高度。
 
+拿到创世文件，就可以按这个[安装指南](https://github.com/filestorm-fst/go-stormchain)来部署MOAC联盟应用链了。
+
 MOAC联盟应用链部署成功后，每隔flushNumber个区块就会对主链进行刷新，直到合约中的MOAC耗尽。
+
 
 
 
