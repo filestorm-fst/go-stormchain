@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -206,6 +207,43 @@ func initGenesis(ctx *cli.Context) error {
 
 	genesis := new(core.Genesis)
 	if err := json.NewDecoder(file).Decode(genesis); err != nil {
+		utils.Fatalf("invalid genesis file: %v", err)
+	}
+	// Open an initialise both full and light databases
+	stack := makeFullNode(ctx)
+	defer stack.Close()
+
+	for _, name := range []string{"chaindata", "lightchaindata"} {
+		chaindb, err := stack.OpenDatabase(name, 0, 0, "")
+		if err != nil {
+			utils.Fatalf("Failed to open database: %v", err)
+		}
+		_, hash, err := core.SetupGenesisBlock(chaindb, genesis)
+		if err != nil {
+			utils.Fatalf("Failed to write genesis block: %v", err)
+		}
+		chaindb.Close()
+		log.Info("Successfully wrote genesis state", "database", name, "hash", hash)
+	}
+	return nil
+}
+
+// initMoacGenesis will initialise an application chain from Moac blockchain.
+// the input parameter will be the address of the contract used to register
+// the chain on Moac.
+func initMoacGenesis(ctx *cli.Context) error {
+	// Make sure we have a valid genesis JSON
+	contractAddr := ctx.Args().First()
+	if len(contractAddr) == 0 {
+		utils.Fatalf("Must supply Moac contract address")
+	}
+	
+	// find the contract using the address from Moac blockchain.
+	// call getGenesisInfo() function from the contract
+	r := strings.NewReader("pass the returned string from getGenesisInfo() function")
+
+	genesis := new(core.Genesis)
+	if err := json.NewDecoder(r).Decode(genesis); err != nil {
 		utils.Fatalf("invalid genesis file: %v", err)
 	}
 	// Open an initialise both full and light databases
