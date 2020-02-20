@@ -27,7 +27,7 @@ Password:
 Repeat password:
 
 $ ./storm --datadir data init genesis_storm.json
-$ ./storm --datadir data  --networkid 20200215 --syncmode 'full' --port 30314 --bootnodes "enode://c9aff5fa6fd978a5935590b8f98212ab0d9ad45f337f0477da7fa20a9cc5d534a1ec3f2a731bb12ccf42caaddc4f7f01cccba54f61848b84c9282fe2a091cfaa@47.115.27.232:30314"
+$ ./storm --datadir data  --networkid 20200215 --syncmode 'light' --port 30314 --bootnodes "enode://c9aff5fa6fd978a5935590b8f98212ab0d9ad45f337f0477da7fa20a9cc5d534a1ec3f2a731bb12ccf42caaddc4f7f01cccba54f61848b84c9282fe2a091cfaa@47.115.27.232:30314"
 
 `````````````````````````````
 
@@ -59,7 +59,7 @@ Password:
 Repeat password:
 
 $ ./storm --datadir data init genesis_federated.json
-$ ./storm --datadir data  --networkid 20200207 --syncmode 'full' --port 30311 --bootnodes "enode://117c56e1ea11802bedc1a25145272ed01eabde8e8c741fc42ee268e73324442016a95e17738d18dbbe9e06821a396e877159d7fe1d4df82ae547ca129dba9e8d@47.115.0.166:30411“
+$ ./storm --datadir data  --networkid 20200207 --syncmode 'light' --port 30411 --bootnodes "enode://117c56e1ea11802bedc1a25145272ed01eabde8e8c741fc42ee268e73324442016a95e17738d18dbbe9e06821a396e877159d7fe1d4df82ae547ca129dba9e8d@47.115.0.166:30411"
 
 `````````````````````````````
 
