@@ -75,6 +75,7 @@ var (
 		"COPYING",
 		executablePath("abigen"),
 		executablePath("bootnode"),
+		executablePath("moac"),
 		executablePath("evm"),
 		executablePath("storm"),
 		executablePath("puppeth"),
@@ -92,6 +93,10 @@ var (
 		{
 			BinaryName:  "bootnode",
 			Description: "Filestorm bootnode.",
+		},
+		{
+			BinaryName:  "moac",
+			Description: "Filestorm moac server.",
 		},
 		{
 			BinaryName:  "evm",
