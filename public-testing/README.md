@@ -8,27 +8,26 @@
 We have two testnet. Stormchain is a public chain and 风暴联盟链 is a federated chain.
 
 ### Stormchain Public Testing
-
-Explorer [link](http://explorer.filestorm.info)
+Explorer [http://explorer.filestorm.info](http://explorer.filestorm.info)
 
 Connecting Node: 
 `````````````````````````````
 enode://c9aff5fa6fd978a5935590b8f98212ab0d9ad45f337f0477da7fa20a9cc5d534a1ec3f2a731bb12ccf42caaddc4f7f01cccba54f61848b84c9282fe2a091cfaa@47.115.27.232:30314
 `````````````````````````````
 
-Genesis File: [Download](generated_storm.json)
+Genesis File: [generated_storm.json](generated_storm.json)
 
 
 ### 风暴联盟链
 
-浏览器：[link](http://federated.filestorm.info)
+浏览器：[http://federated.filestorm.info](http://federated.filestorm.info)
 
 连接节点：
 `````````````````````````````
 enode://117c56e1ea11802bedc1a25145272ed01eabde8e8c741fc42ee268e73324442016a95e17738d18dbbe9e06821a396e877159d7fe1d4df82ae547ca129dba9e8d@47.115.0.166:30411
 `````````````````````````````
 
-创世文件: [下载](generated_federated.json)
+创世文件: [generated_federated.json](generated_federated.json)
 
 
 Connect
