@@ -19,6 +19,9 @@ contract ApplicationChain {
     uint256 public period;
     uint256 public flushEpoch;
 
+    string private genesisInfo;
+    bool private genesisSet;
+
     mapping(uint256=>flushRound) public flushMapping;
     uint256[] public flushList;
     
@@ -51,6 +54,8 @@ contract ApplicationChain {
         period = blockSec;
         flushEpoch = flushNumber;
         balance = msg.value;
+
+        genesisSet = false;
         
         uint256 flushId = 0;
         flushMapping[flushId].flushId = flushId;
@@ -125,96 +130,18 @@ contract ApplicationChain {
         }
     }
     
+    function setGenesisInfo(string genesis) public {
+        require(admins[msg.sender] == 1, "Only Admins Can Set Genesis Info.");
+        require(
+            genesisSet == false,
+            "Genesis Info Has Already Been Set."
+        );
+       genesisInfo = genesis;
+        genesisSet = true;
+    }
+
     function getGenesisInfo() public view returns (string) {
-        
-        string memory validString = "";
-        string memory allocString = "";
-        for (uint i=0; i<flushValidatorList[1].length; i++){
-            validString = string(abi.encodePacked(validString, addr2str(flushValidatorList[1][i])));
-        }
-
-        uint256 averageAmt = tokenTotal / flushValidatorList[1].length;
-        uint256 remainingAmt = tokenTotal - (averageAmt * (flushValidatorList[1].length - 1));
-        string memory comma = ",";
-        for (i=0; i<flushValidatorList[1].length; i++){
-            if (i==flushValidatorList[1].length-1){
-                averageAmt = remainingAmt;
-                comma = "";
-            }
-            allocString = string(abi.encodePacked(allocString, 
-            '    "',
-            addr2str(flushValidatorList[1][i]),
-            '": {',
-            '      "balance": "',
-            uint2str(averageAmt),
-            '"',
-            '    }',
-            comma
-            ));
-        }
-
-        return string(abi.encodePacked('{',
-        '{',
-        ' "config": {',
-        ' "chainId": ',
-        uint2str(chainId),
-        ',',
-        '  "pbft": {',
-        '   "period": ',
-        uint2str(period),
-        ',',
-        '   "epoch": "36000",',
-        '   "epochFlush": "',
-        uint2str(flushEpoch),
-        '"',
-        '  }',
-        ' },',
-        '  "nonce": "0x0",',
-        '  "timestamp": "0x5de22b51",',
-        '  "extraData": "0x0000000000000000000000000000000000000000000000000000000000000000',
-        validString,
-        '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",',
-        '  "gasLimit": "0x47b760",',
-        '  "difficulty": "0x1",',
-        '  "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",',
-        '  "coinbase": "0x0000000000000000000000000000000000000000",',
-        '  "alloc": {',
-        allocString,
-        '},',
-        '  "number": "0x0",',
-        '  "gasUsed": "0x0",',
-        '  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000"',
-        '}'));
-    }
-    
-    function uint2str(uint i) internal pure returns (string){
-        if (i == 0) return "0";
-        uint j = i;
-        uint length;
-        while (j != 0){
-            length++;
-            j /= 10;
-        }
-        bytes memory bstr = new bytes(length);
-        uint k = length - 1;
-        while (i != 0){
-            bstr[k--] = byte(48 + i % 10);
-            i /= 10;
-        }
-        return string(bstr);
-    }
-
-    function addr2str(address _addr) public pure returns(string) {
-        bytes32 value = bytes32(uint256(_addr));
-        bytes memory alphabet = "0123456789abcdef";
-    
-        bytes memory str = new bytes(51);
-
-        for (uint i = 0; i < 20; i++) {
-            str[i*2] = alphabet[uint(uint8(value[i + 12] >> 4))];
-            str[i*2+1] = alphabet[uint(uint8(value[i + 12] & 0x0f))];
-        }
-        return string(str);
+        return genesisInfo;
     }
 }
 
