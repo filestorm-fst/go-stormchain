@@ -37,6 +37,7 @@ $ cd storm_node
 $ ./storm attach data/storm.ipc
 ``````````````````````````````````
 
+If you need test token, you can get it from the faucet. Pick stormchain from the drop down: [http://faucet.filestorm.info](http://faucet.filestorm.info/#/home)
 
 ### 风暴联盟链
 
@@ -68,3 +69,5 @@ $ ./storm --datadir data  --networkid 20200207 --syncmode 'light' --port 30411 -
 $ cd storm_node
 $ ./storm attach data/storm.ipc
 ``````````````````````````````````
+
+测试通证可以从水龙头链接获取。请选择风暴联盟链。[http://faucet.filestorm.info](http://faucet.filestorm.info/#/home)
