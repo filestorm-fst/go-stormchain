@@ -57,6 +57,13 @@ var (
 	app = utils.NewApp(gitCommit, gitDate, "the go-filestorm command line interface")
 	// flags that configure the node
 	nodeFlags = []cli.Flag{
+		utils.BlockSecFlag,
+		utils.ContractAddressFlag,
+		utils.FlushNumberFlag,
+		utils.NodeIpFlag,
+		utils.PrivateKeyFlag,
+		utils.InitValidatorsFlag,
+		utils.ExchangeRateFlag,
 		utils.IdentityFlag,
 		utils.UnlockedAccountFlag,
 		utils.PasswordFileFlag,

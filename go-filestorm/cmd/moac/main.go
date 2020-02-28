@@ -5,18 +5,16 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"flag"
 	"fmt"
-	"github.com/filestorm/go-filestorm/cmd/utils"
+	"github.com/filestorm/go-filestorm/accounts/keystore"
+	"github.com/filestorm/go-filestorm/crypto"
 	"github.com/filestorm/go-filestorm/moac/chain3go"
 	"github.com/filestorm/go-filestorm/moac/chain3go/lib/common/hexutil"
 	"github.com/filestorm/go-filestorm/moac/chain3go/requestData"
 	"io"
 	"io/ioutil"
-	"log"
 	"math"
 	"math/big"
-	"net"
 	"net/http"
 	"strconv"
 	"time"
@@ -69,37 +67,54 @@ var nonceControlMap map[string]uint64 = make(map[string]uint64)
 
 func main() {
 
-	var (
-		moacIp  = flag.String("moacIp", "", "vnode access IP")
+	//var (
+	//	moacIp = flag.String("moacIp", "", "vnode access IP")
+	//)
+
+
+	//
+	//flag.Parse()
+	//if "" != *moacIp {
+	//	vnodeIp = *moacIp
+	//}
+
+	//_, _, err := net.SplitHostPort(vnodeIp)
+	//if err != nil {
+	//	utils.Fatalf("IP or port is invalid")
+	//}
+	//log.Printf("vnode ip : %s",vnodeIp )
+
+	var keyJson = `{"address":"d02443b8d564fed4ad332cd52508b69b511df5b8","crypto":{"cipher":"aes-128-ctr","ciphertext":"0ce1a5520297c7c28a4a4956ca80b274d7345d32fc07e4682c4c7f88da715455","cipherparams":{"iv":"d168b4c58ac0c942d40155409c993ed4"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"dfb19c95aadbe7b2b94caf3eac9f94f08f6b1e6c6e16f6fd93f3585d8bc6dbe2"},"mac":"15828209a3c40a1b0ac01ea0d67a9c5b8b9834f487869b8e5092a59dadbd0124"},"id":"7297a260-ae92-4cd6-b768-bc9a8e2a11f4","version":3}`
+	key, err := keystore.DecryptKey([]byte(keyJson), "GZC15527185733")
+	if err != nil {
+		panic(err)
+	}
+
+	address := key.Address.Hex()
+	privateKey := hex.EncodeToString(crypto.FromECDSA(key.PrivateKey))
+
+	fmt.Printf("Address:\t%s\nPrivateKey:\t%s\n",
+		address,
+		privateKey,
 	)
 
-	flag.Parse()
-	if "" != *moacIp {
-		vnodeIp = *moacIp
-	}
 
-	_, _, err := net.SplitHostPort(vnodeIp)
-	if err != nil {
-		utils.Fatalf("IP or port is invalid")
-	}
-	log.Printf("vnode ip : %s",vnodeIp )
-
-	http.HandleFunc("/createAddress", createAddressHandle)
-	http.HandleFunc("/importAddress", importAddressHandle)
-	http.HandleFunc("/saveFile", saveFileHandle)
-	http.HandleFunc("/readFile", readFileHandle)
-	http.HandleFunc("/removeFile", removeFileHandle)
-	http.HandleFunc("/addIpfs", addIpfsSubChainHandle)
-	http.HandleFunc("/deleteIpfs", deleteIpfsSubChainHandle)
-	http.HandleFunc("/getAllIpfsInfo", getAllIpfsInfoHandle)
-
-	http.HandleFunc("/subChainTransaction", subChainTransactionHandle)
-	http.HandleFunc("/fstToSubChainCoin", fstToSubChainCoinHandle)
-	http.HandleFunc("/subChainCoinToFst", subChainCoinToFstHandle)
-	http.HandleFunc("/erc20Tx", erc20TxHandle)
-	http.HandleFunc("/moacTx", moacTxHandle)
-
-	log.Fatal(http.ListenAndServe(":8888", nil))
+	//http.HandleFunc("/createAddress", createAddressHandle)
+	//http.HandleFunc("/importAddress", importAddressHandle)
+	//http.HandleFunc("/saveFile", saveFileHandle)
+	//http.HandleFunc("/readFile", readFileHandle)
+	//http.HandleFunc("/removeFile", removeFileHandle)
+	//http.HandleFunc("/addIpfs", addIpfsSubChainHandle)
+	//http.HandleFunc("/deleteIpfs", deleteIpfsSubChainHandle)
+	//http.HandleFunc("/getAllIpfsInfo", getAllIpfsInfoHandle)
+	//
+	//http.HandleFunc("/subChainTransaction", subChainTransactionHandle)
+	//http.HandleFunc("/fstToSubChainCoin", fstToSubChainCoinHandle)
+	//http.HandleFunc("/subChainCoinToFst", subChainCoinToFstHandle)
+	//http.HandleFunc("/erc20Tx", erc20TxHandle)
+	//http.HandleFunc("/moacTx", moacTxHandle)
+	//
+	//log.Fatal(http.ListenAndServe(":8888", nil))
 }
 
 //返回请求状态字符串

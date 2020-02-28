@@ -90,12 +90,12 @@ type Filestorm struct {
 
 	miner     *miner.Miner
 	gasPrice  *big.Int
-	etherbase common.Address
+	fsterbase common.Address
 
 	networkID     uint64
 	netRPCService *fstapi.PublicNetAPI
 
-	lock sync.RWMutex // Protects the variadic fields (e.g. gas price and etherbase)
+	lock sync.RWMutex // Protects the variadic fields (e.g. gas price and fsterbase)
 }
 
 func (s *Filestorm) AddLesServer(ls LesServer) {
@@ -151,7 +151,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Filestorm, error) {
 		shutdownChan:   make(chan bool),
 		networkID:      config.NetworkId,
 		gasPrice:       config.Miner.GasPrice,
-		etherbase:      config.Miner.Etherbase,
+		fsterbase:      config.Miner.Fsterbase,
 		bloomRequests:  make(chan chan *bloombits.Retrieval),
 		bloomIndexer:   NewBloomIndexer(chainDb, params.BloomBitsBlocks, params.BloomConfirms),
 	}
@@ -345,33 +345,33 @@ func (s *Filestorm) ResetWithGenesisBlock(gb *types.Block) {
 	s.blockchain.ResetWithGenesisBlock(gb)
 }
 
-func (s *Filestorm) Etherbase() (eb common.Address, err error) {
+func (s *Filestorm) Fsterbase() (eb common.Address, err error) {
 	s.lock.RLock()
-	etherbase := s.etherbase
+	fsterbase := s.fsterbase
 	s.lock.RUnlock()
 
-	if etherbase != (common.Address{}) {
-		return etherbase, nil
+	if fsterbase != (common.Address{}) {
+		return fsterbase, nil
 	}
 	if wallets := s.AccountManager().Wallets(); len(wallets) > 0 {
 		if accounts := wallets[0].Accounts(); len(accounts) > 0 {
-			etherbase := accounts[0].Address
+			fsterbase := accounts[0].Address
 
 			s.lock.Lock()
-			s.etherbase = etherbase
+			s.fsterbase = fsterbase
 			s.lock.Unlock()
 
-			log.Info("Etherbase automatically configured", "address", etherbase)
-			return etherbase, nil
+			log.Info("Fsterbase automatically configured", "address", fsterbase)
+			return fsterbase, nil
 		}
 	}
-	return common.Address{}, fmt.Errorf("etherbase must be explicitly specified")
+	return common.Address{}, fmt.Errorf("fsterbase must be explicitly specified")
 }
 
 // isLocalBlock checks whether the specified block is mined
 // by local miner accounts.
 //
-// We regard two types of accounts as local miner account: etherbase
+// We regard two types of accounts as local miner account: fsterbase
 // and accounts specified via `txpool.locals` flag.
 func (s *Filestorm) isLocalBlock(block *types.Block) bool {
 	author, err := s.engine.Author(block.Header())
@@ -379,11 +379,11 @@ func (s *Filestorm) isLocalBlock(block *types.Block) bool {
 		log.Warn("Failed to retrieve block author", "number", block.NumberU64(), "hash", block.Hash(), "err", err)
 		return false
 	}
-	// Check whether the given address is etherbase.
+	// Check whether the given address is fsterbase.
 	s.lock.RLock()
-	etherbase := s.etherbase
+	fsterbase := s.fsterbase
 	s.lock.RUnlock()
-	if author == etherbase {
+	if author == fsterbase {
 		return true
 	}
 	// Check whether the given address is specified by `txpool.local`
@@ -426,12 +426,12 @@ func (s *Filestorm) shouldPreserve(block *types.Block) bool {
 }
 
 // SetEtherbase sets the mining reward address.
-func (s *Filestorm) SetEtherbase(etherbase common.Address) {
+func (s *Filestorm) SetEtherbase(fsterbase common.Address) {
 	s.lock.Lock()
-	s.etherbase = etherbase
+	s.fsterbase = fsterbase
 	s.lock.Unlock()
 
-	s.miner.SetEtherbase(etherbase)
+	s.miner.SetEtherbase(fsterbase)
 }
 
 // StartMining starts the miner with the given number of CPU threads. If mining
@@ -458,15 +458,15 @@ func (s *Filestorm) StartMining(threads int) error {
 		s.txPool.SetGasPrice(price)
 
 		// Configure the local mining address
-		eb, err := s.Etherbase()
+		eb, err := s.Fsterbase()
 		if err != nil {
-			log.Error("Cannot start mining without etherbase", "err", err)
-			return fmt.Errorf("etherbase missing: %v", err)
+			log.Error("Cannot start mining without fsterbase", "err", err)
+			return fmt.Errorf("fsterbase missing: %v", err)
 		}
 		if clique, ok := s.engine.(*clique.Clique); ok {
 			wallet, err := s.accountManager.Find(accounts.Account{Address: eb})
 			if wallet == nil || err != nil {
-				log.Error("Etherbase account unavailable locally", "err", err)
+				log.Error("Fsterbase account unavailable locally", "err", err)
 				return fmt.Errorf("signer missing: %v", err)
 			}
 			clique.Authorize(eb, wallet.SignData)
@@ -474,7 +474,7 @@ func (s *Filestorm) StartMining(threads int) error {
 		if pbft, ok := s.engine.(*pbft.Pbft); ok {
 			wallet, err := s.accountManager.Find(accounts.Account{Address: eb})
 			if wallet == nil || err != nil {
-				log.Error("Etherbase account unavailable locally", "err", err)
+				log.Error("Fsterbase account unavailable locally", "err", err)
 				return fmt.Errorf("signer missing: %v", err)
 			}
 			pbft.Authorize(eb, wallet.SignData)
