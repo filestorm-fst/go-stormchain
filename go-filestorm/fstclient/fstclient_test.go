@@ -335,3 +335,16 @@ func TestChainID(t *testing.T) {
 		t.Fatalf("ChainID returned wrong number: %+v", id)
 	}
 }
+
+
+func TestChainIDStorm(t *testing.T) {
+
+
+
+	client, err := Dial("http://47.115.27.232:8502")
+	if err != nil {
+		return
+	}
+	defer client.Close()
+
+}

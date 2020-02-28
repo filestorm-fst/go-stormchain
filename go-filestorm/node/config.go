@@ -70,6 +70,11 @@ type Config struct {
 	// in memory.
 	DataDir string
 
+	//TODO
+	NodeIp string
+	//TODO
+	ContractAddress string
+
 	// Configuration of peer-to-peer networking.
 	P2P p2p.Config
 
@@ -224,6 +229,10 @@ func (c *Config) NodeDB() string {
 		return "" // ephemeral
 	}
 	return c.ResolvePath(datadirNodeDatabase)
+}
+
+func (c *Config) GetNodeIp() string {
+	return c.NodeIp
 }
 
 // DefaultIPCEndpoint returns the IPC path used by default.

@@ -51,14 +51,14 @@ func NewPublicFilestormAPI(e *Filestorm) *PublicFilestormAPI {
 	return &PublicFilestormAPI{e}
 }
 
-// Etherbase is the address that mining rewards will be send to
-func (api *PublicFilestormAPI) Etherbase() (common.Address, error) {
-	return api.e.Etherbase()
+// Fsterbase is the address that mining rewards will be send to
+func (api *PublicFilestormAPI) Fsterbase() (common.Address, error) {
+	return api.e.Fsterbase()
 }
 
-// Coinbase is the address that mining rewards will be send to (alias for Etherbase)
+// Coinbase is the address that mining rewards will be send to (alias for Fsterbase)
 func (api *PublicFilestormAPI) Coinbase() (common.Address, error) {
-	return api.Etherbase()
+	return api.Fsterbase()
 }
 
 // Hashrate returns the POW hashrate
@@ -138,9 +138,9 @@ func (api *PrivateMinerAPI) SetGasPrice(gasPrice hexutil.Big) bool {
 	return true
 }
 
-// SetEtherbase sets the etherbase of the miner
-func (api *PrivateMinerAPI) SetEtherbase(etherbase common.Address) bool {
-	api.e.SetEtherbase(etherbase)
+// SetEtherbase sets the fsterbase of the miner
+func (api *PrivateMinerAPI) SetEtherbase(fsterbase common.Address) bool {
+	api.e.SetEtherbase(fsterbase)
 	return true
 }
 

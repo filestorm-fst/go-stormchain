@@ -99,7 +99,7 @@ func newTester(t *testing.T, confOverride func(*fst.Config)) *tester {
 	ethConf := &fst.Config{
 		Genesis: core.DeveloperGenesisBlock(15, common.Address{}),
 		Miner: miner.Config{
-			Etherbase: common.HexToAddress(testAddress),
+			Fsterbase: common.HexToAddress(testAddress),
 		},
 		Fstash: fstash.Config{
 			PowMode: fstash.ModeTest,

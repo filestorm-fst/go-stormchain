@@ -34,11 +34,16 @@ const (
 	DefaultWSPort      = 8546        // Default TCP port for the websocket RPC server
 	DefaultGraphQLHost = "localhost" // Default host interface for the GraphQL server
 	DefaultGraphQLPort = 8547        // Default TCP port for the GraphQL server
+	//TODO
+	DefaultClientNodeIp = "localhost:8545"
 )
 
 // DefaultConfig contains reasonable default settings.
 var DefaultConfig = Config{
 	DataDir:             DefaultDataDir(),
+	//TODO
+	NodeIp:				 DefaultClientNodeIp,
+	ContractAddress:	 "",
 	HTTPPort:            DefaultHTTPPort,
 	HTTPModules:         []string{"net", "web3"},
 	HTTPVirtualHosts:    []string{"localhost"},

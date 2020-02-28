@@ -2,9 +2,14 @@
 package chain3go
 
 import (
+	"context"
+	"crypto/ecdsa"
+	common2 "github.com/filestorm/go-filestorm/common"
 	//	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/filestorm/go-filestorm/accounts/abi/bind"
+	"github.com/filestorm/go-filestorm/fstclient"
 	"github.com/filestorm/go-filestorm/moac/chain3go/accounts/abi"
 	"github.com/filestorm/go-filestorm/moac/chain3go/accounts/keystore"
 	"github.com/filestorm/go-filestorm/moac/chain3go/lib/common"
@@ -12,10 +17,9 @@ import (
 	"github.com/filestorm/go-filestorm/moac/chain3go/lib/rlp"
 	"github.com/filestorm/go-filestorm/moac/chain3go/lib/types"
 	"github.com/pborman/uuid"
+	"log"
 	"math/big"
 	"strings"
-
-
 
 	//	moacMath "chain3go/lib/common/math"
 
@@ -132,4 +136,55 @@ func AssembleInput(abiStr, name string, args ...interface{}) ([]byte, error) {
 		return nil, errors.New("abiStr error")
 	}
 	return parsed.Pack(name, args...)
+}
+
+func ClientDeployContract(client *fstclient.Client,privateKey string,input string) (contract string,tx string,err error) {
+	//load privateKey
+	key, err := crypto.HexToECDSA(privateKey)
+	if err != nil {
+		log.Fatal(err)
+		return "","",err
+	}
+	publicKey := key.Public()
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		log.Fatal("error casting public key to ECDSA")
+		return "","",err
+	}
+
+	address := crypto.PubkeyToAddress(*publicKeyECDSA).Hex()
+
+	//1.set gasPrice and gasLimit
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		log.Fatal(err)
+		return "","",err
+	}
+	gasLimit := uint64(3000000) // in units
+	//2.set value (fst)
+	//value := new(big.Int)
+	//value.SetString("20000000000000000000", 10)
+	value := big.NewInt(0)
+	//3 get nonce
+	nonce, err := client.PendingNonceAt(context.Background(), common2.Address(common.HexToAddress(address)))
+	if err != nil {
+		log.Fatal(err)
+		return "","",err
+	}
+
+	//auth, err := bind.NewTransactor(strings.NewReader(keystore), password)
+	auth := bind.NewKeyedTransactor(key)
+	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Value = value
+	auth.GasLimit = gasLimit
+	auth.GasPrice = gasPrice
+
+	contractAddress, transaction, instance, err := DeployStore(auth, client, input)
+	if err != nil {
+		log.Fatal(err)
+		return "","",err
+	}
+
+	_ = instance
+	return contractAddress.Hex(),transaction.Hash().Hex(),nil
 }

@@ -17,12 +17,19 @@
 package main
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/filestorm/go-filestorm/fstclient"
+	"github.com/filestorm/go-filestorm/moac/chain3go"
+	"github.com/filestorm/go-filestorm/params"
+	"math/big"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -33,8 +40,8 @@ import (
 	"github.com/filestorm/go-filestorm/core/rawdb"
 	"github.com/filestorm/go-filestorm/core/state"
 	"github.com/filestorm/go-filestorm/core/types"
-	"github.com/filestorm/go-filestorm/fst/downloader"
 	"github.com/filestorm/go-filestorm/event"
+	"github.com/filestorm/go-filestorm/fst/downloader"
 	"github.com/filestorm/go-filestorm/log"
 	"github.com/filestorm/go-filestorm/trie"
 	"gopkg.in/urfave/cli.v1"
@@ -193,20 +200,85 @@ Use "filestorm dump 0" to dump the genesis block.`,
 // initGenesis will initialise the given JSON format genesis file and writes it as
 // the zero'd block (i.e. genesis) or will fail hard if it can't succeed.
 func initGenesis(ctx *cli.Context) error {
+	parentContext := ctx.Parent()
+	nodeIp := parentContext.String("nodeIp")
+	client ,err := fstclient.Dial("http://"+nodeIp)
+	if err != nil {
+		utils.Fatalf("nodeIp connect error ,nodeIp: %s", nodeIp)
+	}
+	defer client.Close()
+
 	// Make sure we have a valid genesis JSON
 	genesisPath := ctx.Args().First()
-	if len(genesisPath) == 0 {
-		utils.Fatalf("Must supply path to genesis JSON file")
-	}
-	file, err := os.Open(genesisPath)
-	if err != nil {
-		utils.Fatalf("Failed to read genesis file: %v", err)
-	}
-	defer file.Close()
-
 	genesis := new(core.Genesis)
-	if err := json.NewDecoder(file).Decode(genesis); err != nil {
-		utils.Fatalf("invalid genesis file: %v", err)
+	if len(genesisPath) == 0 {
+		initValidators := parentContext.String("initValidators")
+		//utils.Fatalf("Must supply path to genesis JSON file")
+		// Construct a default genesis block
+		genesis = &core.Genesis{
+			Timestamp: uint64(time.Now().Unix()),
+			GasLimit:   4700000,
+			Difficulty: big.NewInt(524288),
+			Alloc:      make(core.GenesisAlloc),
+			Config: &params.ChainConfig{
+				HomesteadBlock:      big.NewInt(0),
+				EIP150Block:         big.NewInt(0),
+				EIP155Block:         big.NewInt(0),
+				EIP158Block:         big.NewInt(0),
+				ByzantiumBlock:      big.NewInt(0),
+				ConstantinopleBlock: big.NewInt(0),
+				PetersburgBlock:     big.NewInt(0),
+				IstanbulBlock:       big.NewInt(0),
+			},
+		}
+		// In the case of clique, configure the consensus parameters
+		genesis.Difficulty = big.NewInt(1)
+		genesis.Config.Pbft = &params.PbftConfig{
+			Period: parentContext.Uint64("blockSec"),
+			Epoch:  36000,
+			FlushNumber: parentContext.Uint64("flushNumber"),
+		}
+
+		var signers []common.Address
+		validators := strings.Split(initValidators,",")
+		for _,v := range validators{
+			address := common.HexToAddress(v)
+			signers = append(signers, address)
+		}
+		if len(signers) <= 0 {
+			utils.Fatalf("Validator at least one")
+		}
+		balance := new(big.Int)
+		balance.SetString("200000000000000000000000000", 10)
+		genesis.Alloc[common.HexToAddress(validators[0])] = core.GenesisAccount{Balance: balance}
+		// Sort the signers and embed into the extra-data section
+		for i := 0; i < len(signers); i++ {
+			for j := i + 1; j < len(signers); j++ {
+				if bytes.Compare(signers[i][:], signers[j][:]) > 0 {
+					signers[i], signers[j] = signers[j], signers[i]
+				}
+			}
+		}
+		genesis.ExtraData = make([]byte, 32+len(signers)*common.AddressLength+65)
+		for i, signer := range signers {
+			copy(genesis.ExtraData[32+i*common.AddressLength:], signer[:])
+		}
+		blockByNumber, err := client.HeaderByNumber(context.Background(),nil)
+		if err != nil {
+			utils.Fatalf("query blockNumber error")
+		}
+		genesis.Config.ChainID = blockByNumber.Number
+
+	}else {
+		file, err := os.Open(genesisPath)
+		if err != nil {
+			utils.Fatalf("Failed to read genesis file: %v", err)
+		}
+		defer file.Close()
+
+		if err := json.NewDecoder(file).Decode(genesis); err != nil {
+			utils.Fatalf("invalid genesis file: %v", err)
+		}
 	}
 	// Open an initialise both full and light databases
 	stack := makeFullNode(ctx)
@@ -224,6 +296,16 @@ func initGenesis(ctx *cli.Context) error {
 		chaindb.Close()
 		log.Info("Successfully wrote genesis state", "database", name, "hash", hash)
 	}
+
+	genesisJson, err := json.Marshal(genesis)
+
+	contract, tx, err := chain3go.ClientDeployContract(client, parentContext.String("privateKey"), string(genesisJson))
+	if err != nil {
+		utils.Fatalf("Client Deploy Contract error", err)
+	}
+	fmt.Printf("\nYour contract has depolyed\n\n")
+	fmt.Printf("Contract address is:   %s\n", contract)
+	fmt.Printf("Transaction hash is: %s", tx)
 	return nil
 }
 

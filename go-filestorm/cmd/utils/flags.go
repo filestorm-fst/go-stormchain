@@ -144,6 +144,35 @@ var (
 		Usage: "Data directory for the databases and keystore",
 		Value: DirectoryString(node.DefaultDataDir()),
 	}
+	BlockSecFlag = cli.Uint64Flag{
+		Name:  "blockSec",
+		Usage: "Block rate (Unit of second)",
+		Value: 15,
+	}
+	FlushNumberFlag = cli.Uint64Flag{
+		Name:  "flushNumber",
+		Usage: "Number of blocks in one flash interval",
+	}
+	InitValidatorsFlag = cli.StringFlag{
+		Name:  "initValidators",
+		Usage: `List of initial authorized nodes`,
+	}
+	ExchangeRateFlag = cli.Uint64Flag{
+		Name:  "exchangeRate",
+		Usage: "Token exchange ratio",
+	}
+	NodeIpFlag = cli.StringFlag{
+		Name:  "nodeIp",
+		Usage: `node's ip`,
+	}
+	ContractAddressFlag = cli.StringFlag{
+		Name:  "contractAddress",
+		Usage: `Contract address`,
+	}
+	PrivateKeyFlag = cli.StringFlag{
+		Name:  "privateKey",
+		Usage: `Private contract for initializing the chain`,
+	}
 	AncientFlag = DirectoryFlag{
 		Name:  "datadir.ancient",
 		Usage: "Data directory for ancient chain segments (default = inside chaindata)",
@@ -441,13 +470,13 @@ var (
 		Value: fst.DefaultConfig.Miner.GasPrice,
 	}
 	MinerEtherbaseFlag = cli.StringFlag{
-		Name:  "miner.etherbase",
+		Name:  "miner.fsterbase",
 		Usage: "Public address for block mining rewards (default = first account)",
 		Value: "0",
 	}
 	MinerLegacyEtherbaseFlag = cli.StringFlag{
-		Name:  "etherbase",
-		Usage: "Public address for block mining rewards (default = first account, deprecated, use --miner.etherbase)",
+		Name:  "fsterbase",
+		Usage: "Public address for block mining rewards (default = first account, deprecated, use --miner.fsterbase)",
 		Value: "0",
 	}
 	MinerExtraDataFlag = cli.StringFlag{
@@ -879,6 +908,23 @@ func setListenAddress(ctx *cli.Context, cfg *p2p.Config) {
 	}
 }
 
+// setListenAddress creates a TCP listening address string from set command
+// line flags.
+//TODO
+func setNodeIp(ctx *cli.Context, cfg *node.Config) {
+	if ctx.GlobalIsSet(NodeIpFlag.Name) {
+		cfg.NodeIp = ctx.GlobalString(NodeIpFlag.Name)
+		node.DefaultConfig.NodeIp = ctx.GlobalString(NodeIpFlag.Name)
+	}
+}
+//TODO
+func setContractAddress(ctx *cli.Context, cfg *node.Config) {
+	if ctx.GlobalIsSet(ContractAddressFlag.Name) {
+		cfg.ContractAddress = ctx.GlobalString(ContractAddressFlag.Name)
+		node.DefaultConfig.ContractAddress = ctx.GlobalString(ContractAddressFlag.Name)
+	}
+}
+
 // setNAT creates a port mapper from command line flags.
 func setNAT(ctx *cli.Context, cfg *p2p.Config) {
 	if ctx.GlobalIsSet(NATFlag.Name) {
@@ -1047,27 +1093,27 @@ func MakeAddress(ks *keystore.KeyStore, account string) (accounts.Account, error
 	return accs[index], nil
 }
 
-// setEtherbase retrieves the etherbase either from the directly specified
+// setEtherbase retrieves the fsterbase either from the directly specified
 // command line flags or from the keystore if CLI indexed.
 func setEtherbase(ctx *cli.Context, ks *keystore.KeyStore, cfg *fst.Config) {
-	// Extract the current etherbase, new flag overriding legacy one
-	var etherbase string
+	// Extract the current fsterbase, new flag overriding legacy one
+	var fsterbase string
 	if ctx.GlobalIsSet(MinerLegacyEtherbaseFlag.Name) {
-		etherbase = ctx.GlobalString(MinerLegacyEtherbaseFlag.Name)
+		fsterbase = ctx.GlobalString(MinerLegacyEtherbaseFlag.Name)
 	}
 	if ctx.GlobalIsSet(MinerEtherbaseFlag.Name) {
-		etherbase = ctx.GlobalString(MinerEtherbaseFlag.Name)
+		fsterbase = ctx.GlobalString(MinerEtherbaseFlag.Name)
 	}
-	// Convert the etherbase into an address and configure it
-	if etherbase != "" {
+	// Convert the fsterbase into an address and configure it
+	if fsterbase != "" {
 		if ks != nil {
-			account, err := MakeAddress(ks, etherbase)
+			account, err := MakeAddress(ks, fsterbase)
 			if err != nil {
-				Fatalf("Invalid miner etherbase: %v", err)
+				Fatalf("Invalid miner fsterbase: %v", err)
 			}
-			cfg.Miner.Etherbase = account.Address
+			cfg.Miner.Fsterbase = account.Address
 		} else {
-			Fatalf("No etherbase configured")
+			Fatalf("No fsterbase configured")
 		}
 	}
 }
@@ -1175,6 +1221,10 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	setNodeUserIdent(ctx, cfg)
 	setDataDir(ctx, cfg)
 	setSmartCard(ctx, cfg)
+	//TODO
+	setNodeIp(ctx,cfg)
+	//TODO
+	setContractAddress(ctx,cfg)
 
 	if ctx.GlobalIsSet(ExternalSignerFlag.Name) {
 		cfg.ExternalSigner = ctx.GlobalString(ExternalSignerFlag.Name)

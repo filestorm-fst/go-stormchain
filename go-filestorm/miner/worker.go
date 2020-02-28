@@ -19,6 +19,10 @@ package miner
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"github.com/filestorm/go-filestorm/fstclient"
+	"github.com/filestorm/go-filestorm/moac/chain3go"
+	"github.com/filestorm/go-filestorm/node"
 	"math/big"
 	"sync"
 	"sync/atomic"
@@ -75,6 +79,11 @@ const (
 	// staleThreshold is the maximum depth of the acceptable stale block.
 	staleThreshold = 7
 )
+
+type Event struct {
+	BlockNumber *big.Int
+	TxHash      common.Hash
+}
 
 // environment is the worker's current environment and holds all of the current state information.
 type environment struct {
@@ -228,7 +237,7 @@ func newWorker(config *Config, chainConfig *params.ChainConfig, engine consensus
 	return worker
 }
 
-// setEtherbase sets the etherbase used to initialize the block coinbase field.
+// setEtherbase sets the fsterbase used to initialize the block coinbase field.
 func (w *worker) setEtherbase(addr common.Address) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -547,6 +556,8 @@ func (w *worker) taskLoop() {
 	}
 }
 
+var transChan = make(chan Event)
+
 // resultLoop is a standalone goroutine to handle sealing result submitting
 // and flush relative data to the database.
 func (w *worker) resultLoop() {
@@ -599,11 +610,15 @@ func (w *worker) resultLoop() {
 				continue
 			}
 
+			event := Event{
+				BlockNumber: block.Number(),
+				TxHash:      hash,
+			}
+
+			transChan <- event
 
 			log.Info("Successfully sealed new block", "number", block.Number(), "sealhash", sealhash, "hash", hash,
 				"elapsed", common.PrettyDuration(time.Since(task.createdAt)))
-
-
 
 			// Broadcast the block and announce chain insertion event
 			w.mux.Post(core.NewMinedBlockEvent{Block: block})
@@ -615,6 +630,31 @@ func (w *worker) resultLoop() {
 			return
 		}
 	}
+}
+
+func init()  {
+	go func() {
+		for {
+			select {
+			case event := <-transChan:
+				fmt.Println(event.BlockNumber.String())
+				client ,err := fstclient.Dial("http://"+ node.DefaultConfig.NodeIp)
+				if err != nil {
+					fmt.Printf("connect nodeIp error, ip : %s",node.DefaultConfig.NodeIp)
+				}
+				address := common.HexToAddress("0x7E4EDf4143C108628a70eaB32Ebcf2fCD062856d")
+				instance, err := chain3go.NewStore(address, client)
+				if err != nil {
+					fmt.Println(err)
+				}
+				genesis, err := instance.Version(nil)
+				if err != nil {
+					fmt.Println(err)
+				}
+				fmt.Println(genesis)
+			}
+		}
+	}()
 }
 
 // makeCurrent creates a new environment for the current cycle.
@@ -855,7 +895,7 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64) 
 	// Only set the coinbase if our consensus engine is running (avoid spurious block rewards)
 	if w.isRunning() {
 		if w.coinbase == (common.Address{}) {
-			log.Error("Refusing to mine without etherbase")
+			log.Error("Refusing to mine without fsterbase")
 			return
 		}
 		header.Coinbase = w.coinbase
