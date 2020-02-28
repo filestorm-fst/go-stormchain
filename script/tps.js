@@ -19,7 +19,7 @@ function testTransactions(blockSec, transCount) {
 	    fst.sendTransaction(
 		{
 			from:   fromAddr,
-            to:     toAddr,
+            		to:     toAddr,
 			value:  transCount,
 			gas:    21000,
 			gasPrice: 1,
