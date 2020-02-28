@@ -1,11 +1,11 @@
 # go-stormchain
-Storm blockchain is developed by FileStorm. It is a multichain ecosystem that can support multiple blockchains including public, private and federated chains. It also supports multiple consensus.
+go-stormchain is a blockchain technology that implements a multichain ecosystem by supporting multiple blockchains including public, private and federated chains. It also supports multiple consensuses.
 
-## Storm公链技术
+## 公有链技术
 
-支持多种共识的多链架构区块链技术。信息公开，技术开源，可以为应用提供专属区块链，支持高TPS。自带区块链存储功能，使用方便。将于2020年第二季度发布。
+支持多种共识的多链架构区块链技术。信息公开，技术开源，可以为应用提供专属区块链，支持高TPS。自带区块链存储功能，使用方便。本技术还在持续开发中。
 
-## 风暴联盟链技术
+## 联盟链技术
 
 FileStorm自主研发基于PBFT共识的区块链技术，支持国家监督和管控，多节点备份，数据存证不可篡改。以国密局标准算法加密原始数据，提取文件Hash上链传输，保护原文件及用户信息安全。
 
@@ -52,7 +52,7 @@ $ echo 'password' > password.txt
 
 ### 第二步 修改创世文件
 
-FileStorm与MOAC共同打造了一条应用链。可以通过在MOAC主网上发布一个智能合约生成创世文件。具体介绍可以看[这里](https://github.com/filestorm-fst/go-stormchain/tree/master/solidity)。
+利用stormchain技术，FileStorm与MOAC共同打造了一条应用链。可以通过在MOAC主网上发布一个智能合约生成创世文件。具体介绍可以看[这里](https://github.com/filestorm-fst/go-stormchain/tree/master/solidity)。
 
 开发者可以对上面的链接获取的创世文件做如下修改。
 
