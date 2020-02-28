@@ -147,7 +147,8 @@ contract QuadraticBallot
         uint256 amountPerVoter = address(this).balance / allVoters.length;
         for(uint8 voter = 0; voter < allVoters.length; voter++)
         {
-            allVoters[voter].transfer(amountPerVoter);
+            address payable temp = address(uint160(allVoters[voter]));
+            temp.transfer(amountPerVoter);
         }
 
         _totalVotes = proposals[_winningProposal].voteCount;
