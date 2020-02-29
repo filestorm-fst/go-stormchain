@@ -42,7 +42,7 @@ type testgeth struct {
 
 	// template variables for expect
 	Datadir   string
-	Fsterbase string
+	Stormbase string
 }
 
 func init() {
@@ -75,9 +75,9 @@ func runStorm(t *testing.T, args ...string) *testgeth {
 			if i < len(args)-1 {
 				tt.Datadir = args[i+1]
 			}
-		case arg == "-fsterbase" || arg == "--fsterbase":
+		case arg == "-stormbase" || arg == "--stormbase":
 			if i < len(args)-1 {
-				tt.Fsterbase = args[i+1]
+				tt.Stormbase = args[i+1]
 			}
 		}
 	}

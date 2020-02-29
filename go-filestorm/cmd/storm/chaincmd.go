@@ -236,7 +236,7 @@ func initGenesis(ctx *cli.Context) error {
 		genesis.Config.Pbft = &params.PbftConfig{
 			Period: parentContext.Uint64("blockSec"),
 			Epoch:  36000,
-			FlushNumber: parentContext.Uint64("flushNumber"),
+			FlushEpoch: parentContext.Uint64("flushEpoch"),
 		}
 
 		var signers []common.Address

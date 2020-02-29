@@ -278,11 +278,11 @@ ones either). To start a `storm` instance for mining, run it with all your usual
 by:
 
 ```shell
-$ storm <usual-flags> --mine --miner.threads=1 --fsterbase=0x0000000000000000000000000000000000000000
+$ storm <usual-flags> --mine --miner.threads=1 --stormbase=0x0000000000000000000000000000000000000000
 ```
 
 Which will start mining blocks and transactions on a single CPU thread, crediting all
-proceedings to the account specified by `--fsterbase`. You can further tune the mining
+proceedings to the account specified by `--stormbase`. You can further tune the mining
 by changing the default gas limit blocks converge to (`--targetgaslimit`) and the price
 transactions are accepted at (`--gasprice`).
 
