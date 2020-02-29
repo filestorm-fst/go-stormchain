@@ -1,0 +1,346 @@
+--2 testing nodes with 3 validators, 5 second block
+
+start block:1466
+finish block:1476
+Block: 1466   Transaction Count:1397
+Block: 1467   Transaction Count:2065
+Block: 1468   Transaction Count:1724
+Block: 1469   Transaction Count:1542
+Block: 1470   Transaction Count:1887
+Block: 1471   Transaction Count:1848
+Block: 1472   Transaction Count:1734
+Block: 1473   Transaction Count:1534
+Block: 1474   Transaction Count:1537
+Block: 1475   Transaction Count:1772
+Block: 1476   Transaction Count:1594
+TPS: 338.8
+
+
+start block:1509
+finish block:1520
+Block: 1509   Transaction Count:1318
+Block: 1510   Transaction Count:2779
+Block: 1511   Transaction Count:1335
+Block: 1512   Transaction Count:111
+Block: 1513   Transaction Count:35
+Block: 1514   Transaction Count:2951
+Block: 1515   Transaction Count:0
+Block: 1516   Transaction Count:0
+Block: 1517   Transaction Count:2897
+Block: 1518   Transaction Count:0
+Block: 1519   Transaction Count:0
+Block: 1520   Transaction Count:2453
+TPS: 346.975
+
+--test with only 3 validators, 5 second block
+
+start block:1560
+finish block:1567
+Block: 1560   Transaction Count:1691
+Block: 1561   Transaction Count:2347
+Block: 1562   Transaction Count:1750
+Block: 1563   Transaction Count:89
+Block: 1564   Transaction Count:2304
+Block: 1565   Transaction Count:3625
+Block: 1566   Transaction Count:0
+Block: 1567   Transaction Count:3379
+TPS: 433.857
+
+start block:1635
+finish block:1643
+Block: 1634   Transaction Count:0
+Block: 1635   Transaction Count:0
+Block: 1636   Transaction Count:0
+Block: 1637   Transaction Count:591
+Block: 1638   Transaction Count:2807
+Block: 1639   Transaction Count:1406
+Block: 1640   Transaction Count:2744
+Block: 1641   Transaction Count:0
+Block: 1642   Transaction Count:3720
+Block: 1643   Transaction Count:3579
+TPS: 494.9
+
+start block:1649
+finish block:1657
+Block: 1648   Transaction Count:0
+Block: 1649   Transaction Count:0
+Block: 1650   Transaction Count:0
+Block: 1651   Transaction Count:103
+Block: 1652   Transaction Count:2378
+Block: 1653   Transaction Count:1718
+Block: 1654   Transaction Count:2439
+Block: 1655   Transaction Count:2999
+Block: 1656   Transaction Count:0
+Block: 1657   Transaction Count:3724
+TPS: 445.367
+
+--2 testing nodes with 3 validators, 2 second block
+
+start block:163
+finish block:179
+Block: 162   Transaction Count:0
+Block: 163   Transaction Count:0
+Block: 164   Transaction Count:0
+Block: 165   Transaction Count:590
+Block: 166   Transaction Count:758
+Block: 167   Transaction Count:664
+Block: 168   Transaction Count:687
+Block: 169   Transaction Count:679
+Block: 170   Transaction Count:706
+Block: 171   Transaction Count:535
+Block: 172   Transaction Count:631
+Block: 173   Transaction Count:553
+Block: 174   Transaction Count:532
+Block: 175   Transaction Count:643
+Block: 176   Transaction Count:624
+Block: 177   Transaction Count:639
+Block: 178   Transaction Count:549
+Block: 179   Transaction Count:556
+TPS: 311.533
+
+--test with only 3 validators, 2 second block
+
+start block:198
+finish block:219
+Block: 197   Transaction Count:0
+Block: 198   Transaction Count:0
+Block: 199   Transaction Count:0
+Block: 200   Transaction Count:170
+Block: 201   Transaction Count:573
+Block: 202   Transaction Count:718
+Block: 203   Transaction Count:1090
+Block: 204   Transaction Count:1058
+Block: 205   Transaction Count:991
+Block: 206   Transaction Count:906
+Block: 207   Transaction Count:970
+Block: 208   Transaction Count:1014
+Block: 209   Transaction Count:987
+Block: 210   Transaction Count:855
+Block: 211   Transaction Count:949
+Block: 212   Transaction Count:995
+Block: 213   Transaction Count:947
+Block: 214   Transaction Count:823
+Block: 215   Transaction Count:731
+Block: 216   Transaction Count:928
+Block: 217   Transaction Count:911
+Block: 218   Transaction Count:817
+Block: 219   Transaction Count:857
+TPS: 432.25
+
+--test with only 3 validators, 10 seconds block
+
+start block:183
+finish block:242
+Block: 182   Transaction Count:0
+Block: 183   Transaction Count:0
+Block: 184   Transaction Count:0
+Block: 185   Transaction Count:4096
+Block: 186   Transaction Count:516
+Block: 187   Transaction Count:4453
+Block: 188   Transaction Count:5378
+Block: 189   Transaction Count:0
+Block: 190   Transaction Count:5168
+Block: 191   Transaction Count:5123
+Block: 192   Transaction Count:0
+Block: 193   Transaction Count:4718
+Block: 194   Transaction Count:5259
+Block: 195   Transaction Count:0
+Block: 196   Transaction Count:5055
+Block: 197   Transaction Count:5128
+Block: 198   Transaction Count:0
+Block: 199   Transaction Count:4768
+Block: 200   Transaction Count:5087
+Block: 201   Transaction Count:0
+Block: 202   Transaction Count:4423
+Block: 203   Transaction Count:4639
+Block: 204   Transaction Count:0
+Block: 205   Transaction Count:3354
+Block: 206   Transaction Count:4362
+Block: 207   Transaction Count:7
+Block: 208   Transaction Count:5190
+Block: 209   Transaction Count:5147
+Block: 210   Transaction Count:0
+Block: 211   Transaction Count:4536
+Block: 212   Transaction Count:4927
+Block: 213   Transaction Count:0
+Block: 214   Transaction Count:4947
+Block: 215   Transaction Count:5193
+Block: 216   Transaction Count:0
+Block: 217   Transaction Count:4777
+Block: 218   Transaction Count:4905
+Block: 219   Transaction Count:0
+Block: 220   Transaction Count:4922
+Block: 221   Transaction Count:4946
+Block: 222   Transaction Count:0
+Block: 223   Transaction Count:4850
+Block: 224   Transaction Count:5133
+Block: 225   Transaction Count:0
+Block: 226   Transaction Count:4773
+Block: 227   Transaction Count:5057
+Block: 228   Transaction Count:0
+Block: 229   Transaction Count:4855
+Block: 230   Transaction Count:5106
+Block: 231   Transaction Count:0
+Block: 232   Transaction Count:5021
+Block: 233   Transaction Count:5133
+Block: 234   Transaction Count:0
+Block: 235   Transaction Count:4738
+Block: 236   Transaction Count:4974
+Block: 237   Transaction Count:0
+Block: 238   Transaction Count:4667
+Block: 239   Transaction Count:4869
+Block: 240   Transaction Count:0
+Block: 241   Transaction Count:4728
+Block: 242   Transaction Count:4858
+TPS: 462.892
+
+--test with only 3 validators, 2 seconds block
+
+start block:13
+finish block:152
+Block: 12   Transaction Count:0
+Block: 13   Transaction Count:0
+Block: 14   Transaction Count:0
+Block: 15   Transaction Count:545
+Block: 16   Transaction Count:2275
+Block: 17   Transaction Count:1813
+Block: 18   Transaction Count:1470
+Block: 19   Transaction Count:1619
+Block: 20   Transaction Count:1702
+Block: 21   Transaction Count:1701
+Block: 22   Transaction Count:1613
+Block: 23   Transaction Count:1543
+Block: 24   Transaction Count:1738
+Block: 25   Transaction Count:1748
+Block: 26   Transaction Count:1537
+Block: 27   Transaction Count:1541
+Block: 28   Transaction Count:1607
+Block: 29   Transaction Count:1612
+Block: 30   Transaction Count:1595
+Block: 31   Transaction Count:1420
+Block: 32   Transaction Count:1147
+Block: 33   Transaction Count:821
+Block: 34   Transaction Count:791
+Block: 35   Transaction Count:1708
+Block: 36   Transaction Count:1400
+Block: 37   Transaction Count:1567
+Block: 38   Transaction Count:1553
+Block: 39   Transaction Count:985
+Block: 40   Transaction Count:1109
+Block: 41   Transaction Count:1109
+Block: 42   Transaction Count:1154
+Block: 43   Transaction Count:1025
+Block: 44   Transaction Count:1233
+Block: 45   Transaction Count:1232
+Block: 46   Transaction Count:1108
+Block: 47   Transaction Count:1161
+Block: 48   Transaction Count:1084
+Block: 49   Transaction Count:1170
+Block: 50   Transaction Count:1086
+Block: 51   Transaction Count:1139
+Block: 52   Transaction Count:1175
+Block: 53   Transaction Count:1134
+Block: 54   Transaction Count:1198
+Block: 55   Transaction Count:1076
+Block: 56   Transaction Count:1229
+Block: 57   Transaction Count:1201
+Block: 58   Transaction Count:1167
+Block: 59   Transaction Count:1054
+Block: 60   Transaction Count:1163
+Block: 61   Transaction Count:1082
+Block: 62   Transaction Count:1161
+Block: 63   Transaction Count:1184
+Block: 64   Transaction Count:1016
+Block: 65   Transaction Count:1161
+Block: 66   Transaction Count:1021
+Block: 67   Transaction Count:1132
+Block: 68   Transaction Count:1144
+Block: 69   Transaction Count:1184
+Block: 70   Transaction Count:1057
+Block: 71   Transaction Count:1116
+Block: 72   Transaction Count:1130
+Block: 73   Transaction Count:1166
+Block: 74   Transaction Count:1145
+Block: 75   Transaction Count:1045
+Block: 76   Transaction Count:1164
+Block: 77   Transaction Count:1167
+Block: 78   Transaction Count:1097
+Block: 79   Transaction Count:1098
+Block: 80   Transaction Count:1108
+Block: 81   Transaction Count:1138
+Block: 82   Transaction Count:1034
+Block: 83   Transaction Count:1433
+Block: 84   Transaction Count:1706
+Block: 85   Transaction Count:1446
+Block: 86   Transaction Count:1534
+Block: 87   Transaction Count:1424
+Block: 88   Transaction Count:1565
+Block: 89   Transaction Count:1623
+Block: 90   Transaction Count:1673
+Block: 91   Transaction Count:1619
+Block: 92   Transaction Count:1691
+Block: 93   Transaction Count:1497
+Block: 94   Transaction Count:1531
+Block: 95   Transaction Count:1730
+Block: 96   Transaction Count:1466
+Block: 97   Transaction Count:1531
+Block: 98   Transaction Count:1557
+Block: 99   Transaction Count:1551
+Block: 100   Transaction Count:1493
+Block: 101   Transaction Count:1681
+Block: 102   Transaction Count:1609
+Block: 103   Transaction Count:1461
+Block: 104   Transaction Count:1653
+Block: 105   Transaction Count:1454
+Block: 106   Transaction Count:1580
+Block: 107   Transaction Count:1463
+Block: 108   Transaction Count:1411
+Block: 109   Transaction Count:1622
+Block: 110   Transaction Count:1529
+Block: 111   Transaction Count:1358
+Block: 112   Transaction Count:1285
+Block: 113   Transaction Count:1388
+Block: 114   Transaction Count:1626
+Block: 115   Transaction Count:1567
+Block: 116   Transaction Count:1576
+Block: 117   Transaction Count:1441
+Block: 118   Transaction Count:1138
+Block: 119   Transaction Count:1476
+Block: 120   Transaction Count:1498
+Block: 121   Transaction Count:1774
+Block: 122   Transaction Count:1523
+Block: 123   Transaction Count:1462
+Block: 124   Transaction Count:1578
+Block: 125   Transaction Count:1693
+Block: 126   Transaction Count:1581
+Block: 127   Transaction Count:1561
+Block: 128   Transaction Count:1614
+Block: 129   Transaction Count:1589
+Block: 130   Transaction Count:1428
+Block: 131   Transaction Count:1723
+Block: 132   Transaction Count:1458
+Block: 133   Transaction Count:1432
+Block: 134   Transaction Count:1715
+Block: 135   Transaction Count:1614
+Block: 136   Transaction Count:1511
+Block: 137   Transaction Count:1692
+Block: 138   Transaction Count:1523
+Block: 139   Transaction Count:1489
+Block: 140   Transaction Count:1621
+Block: 141   Transaction Count:1750
+Block: 142   Transaction Count:1448
+Block: 143   Transaction Count:1486
+Block: 144   Transaction Count:1835
+Block: 145   Transaction Count:1647
+Block: 146   Transaction Count:1464
+Block: 147   Transaction Count:1583
+Block: 148   Transaction Count:1755
+Block: 149   Transaction Count:1586
+Block: 150   Transaction Count:1206
+Block: 151   Transaction Count:1727
+Block: 152   Transaction Count:1695
+Block: 153   Transaction Count:1449
+TPS: 281.591
+
+
+
