@@ -611,7 +611,7 @@ func (c *Pbft) Seal(chain consensus.ChainReader, block *types.Block, results cha
 		if recent == signer {
 			// Signer is among recents, only wait if the current block doesn't shift it out
 			if limit := uint64(len(snap.Signers)/2 + 1); number < limit || seen > number-limit {
-				log.Info("Signed recently, must wait for others")
+				log.Info("Waiting for mining work")
 				return nil
 			}
 		}
