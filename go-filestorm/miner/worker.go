@@ -618,7 +618,7 @@ func (w *worker) resultLoop() {
 			}
 			w.flushChan <- &event
 
-			log.Info("Successfully sealed new block", "number", block.Number(), "sealhash", sealhash, "hash", hash,
+			log.Info("Sealed a new block", "block", block.Number(), "sealhash", sealhash, "hash", hash,
 				"elapsed", common.PrettyDuration(time.Since(task.createdAt)))
 
 			// Broadcast the block and announce chain insertion event
@@ -1022,7 +1022,7 @@ func (w *worker) commit(uncles []*types.Header, interval func(), update bool, st
 
 
 
-			log.Info("Commit new mining work", "number", block.Number(), "sealhash", w.engine.SealHash(block.Header()),
+			log.Info("Commit new mining work", "block", block.Number(), "sealhash", w.engine.SealHash(block.Header()),
 				"uncles", len(uncles), "txs", w.current.tcount, "gas", block.GasUsed(), "fees", feesEth, "elapsed", common.PrettyDuration(time.Since(start)))
 
 		case <-w.exitCh:
