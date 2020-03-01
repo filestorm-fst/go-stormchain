@@ -140,7 +140,8 @@ func New(ctx *node.ServiceContext, config *Config) (*Filestorm, error) {
 	if _, ok := genesisErr.(*params.ConfigCompatError); genesisErr != nil && !ok {
 		return nil, genesisErr
 	}
-	log.Info("Initialised chain configuration", "config", chainConfig)
+	log.Info("Initialised chain configuration")
+	//, "config", chainConfig)
 
 	fst := &Filestorm{
 		config:         config,
@@ -161,7 +162,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Filestorm, error) {
 	if bcVersion != nil {
 		dbVer = fmt.Sprintf("%d", *bcVersion)
 	}
-	log.Info("Initialising Filestorm protocol", "versions", ProtocolVersions, "network", config.NetworkId, "dbversion", dbVer)
+	log.Info("Initialising Storm protocol", "versions", ProtocolVersions, "network", config.NetworkId, "dbversion", dbVer)
 
 	if !config.SkipBcVersionCheck {
 		if bcVersion != nil && *bcVersion > core.BlockChainVersion {
