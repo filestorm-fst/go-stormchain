@@ -1175,7 +1175,7 @@ func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
 	if lightClient {
 		ethPeers = 0
 	}
-	log.Info("Maximum peer count", "FST", ethPeers, "LES", lightPeers, "total", cfg.MaxPeers)
+	log.Info("Maximum peer count", "Full", ethPeers, "Light", lightPeers, "Total", cfg.MaxPeers)
 
 	if ctx.GlobalIsSet(MaxPendingPeersFlag.Name) {
 		cfg.MaxPendingPeers = ctx.GlobalInt(MaxPendingPeersFlag.Name)
@@ -1253,7 +1253,7 @@ func setSmartCard(ctx *cli.Context, cfg *node.Config) {
 	// Sanity check that the smartcard path is valid
 	fi, err := os.Stat(path)
 	if err != nil {
-		log.Info("Smartcard socket not found, disabling", "err", err)
+		// log.Info("Smartcard socket not found, disabling", "err", err)
 		return
 	}
 	if fi.Mode()&os.ModeType != os.ModeSocket {
