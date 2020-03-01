@@ -77,7 +77,8 @@ func New(ctx *node.ServiceContext, config *fst.Config) (*LightFilestorm, error) 
 	if _, isCompat := genesisErr.(*params.ConfigCompatError); genesisErr != nil && !isCompat {
 		return nil, genesisErr
 	}
-	log.Info("Initialised chain configuration", "config", chainConfig)
+	log.Info("Initialised chain configuration")
+	//, "config", chainConfig.)
 
 	peers := newPeerSet()
 	leth := &LightFilestorm{
