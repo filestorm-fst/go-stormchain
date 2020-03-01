@@ -360,12 +360,12 @@ func (f *freezer) freeze(db fstdb.KeyValueStore) {
 		}
 		// Log something friendly for the user
 		context := []interface{}{
-			"blocks", f.frozen - first, "elapsed", common.PrettyDuration(time.Since(start)), "number", f.frozen - 1,
+			"block", f.frozen, "elapsed", common.PrettyDuration(time.Since(start)), "blks", f.frozen - first,
 		}
 		if n := len(ancients); n > 0 {
 			context = append(context, []interface{}{"hash", ancients[n-1]}...)
 		}
-		log.Info("Deep froze chain segment", context...)
+		log.Info("Reimported chain segment", context...)
 
 		// Avoid database thrashing with tiny writes
 		if f.frozen-first < freezerBatchLimit {
