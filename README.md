@@ -164,11 +164,11 @@ $ rm password.txt
 
 这时候，我们会看到所有节点都停在第二个块
 ``````````````````````````````````
-INFO [02-06|13:01:02.505] Commit new mining work                   number=1 sealhash=56a809…a06463 uncles=0 txs=0 gas=0 fees=0 elapsed=158.258µs
-INFO [02-06|13:01:02.634] Successfully sealed new block            number=1 sealhash=56a809…a06463 hash=17d48d…cb74e4 elapsed=128.207ms
-INFO [02-06|13:01:02.634] 🔨 mined potential block                  number=1 hash=17d48d…cb74e4
-INFO [02-06|13:01:02.635] Commit new mining work                   number=2 sealhash=72548f…ba20b0 uncles=0 txs=0 gas=0 fees=0 elapsed=809.66µs
-INFO [02-06|13:01:02.635] Signed recently, must wait for others
+INFO [02-06|13:01:02.505] Commit new mining work                   block=1 sealhash=56a809…a06463 uncles=0 txs=0 gas=0 fees=0 elapsed=158.258µs
+INFO [02-06|13:01:02.634] Sealed a new block                       block=1 sealhash=56a809…a06463 hash=17d48d…cb74e4 elapsed=128.207ms
+INFO [02-06|13:01:02.634] Mined a potential block                  block=1 hash=17d48d…cb74e4
+INFO [02-06|13:01:02.635] Commit new mining work                   block=2 sealhash=72548f…ba20b0 uncles=0 txs=0 gas=0 fees=0 elapsed=809.66µs
+INFO [02-06|13:01:02.635] 
 ``````````````````````````````````
 这是因为三个节点还没有互相连上，所以，下一步，就是要做节点的连接。
 
@@ -312,3 +312,58 @@ kill -9 78115
 ### 节点升级
 
 节点升级，只需要中止节点程序，替换节点程序，然后重新启动即可。如果同时管理几个节点，建议一次升级一个节点。等节点出块后再更新其他节点。节点重新启动可能需要最长10分钟来连接回区块链网络，如果想快速连回，可使用第六步中 admin.addPeer 的方式快速建立连接。
+
+### 节点日志解释
+
+````````
+INFO [03-01|14:09:57.005] Commit new mining work                   block=8944 sealhash=d0f9c1…0999be uncles=0 txs=0 gas=0 fees=0 elapsed=799.162µs
+INFO [03-01|14:10:02.002] Imported new blocks                      block=8944 hash=f193f4…8d0170 blks=1 txs=0 mgas=0.000 dirty=0.00B
+INFO [03-01|14:10:02.002] Commit new mining work                   block=8945 sealhash=05508e…d47330 uncles=0 txs=0 gas=0 fees=0 elapsed=232.068µs
+INFO [03-01|14:10:07.002] Imported new blocks                      block=8945 hash=ca9823…981c56 blks=1 txs=0 mgas=0.000 dirty=0.00B
+INFO [03-01|14:10:07.002] Commit new mining work                   block=8946 sealhash=490317…94c810 uncles=0 txs=0 gas=0 fees=0 elapsed=235.869µs
+INFO [03-01|14:10:12.005] Sealed a new block                       block=8946 sealhash=490317…94c810 hash=daff82…69ecd7 elapsed=5.002s
+INFO [03-01|14:10:12.005] Mined a potential block                  block=8946 hash=daff82…69ecd7
+INFO [03-01|14:10:12.006] Commit new mining work                   block=8947 sealhash=8a7231…20c7bd uncles=0 txs=0 gas=0 fees=0 elapsed=888.573µs
+INFO [03-01|14:10:12.006] Waiting for mining work. 
+
+INFO [03-01|14:10:02.002] Reached canonical chain                  block=8937 hash=9c2b14…75ef51
+
+````````
+这是一个出块节点上常见的日志，我们来解释一下。
+
+* Commit new mining work - 把本地交易进行打包生成一个本地区块。
+* Imported new blocks - 把通过共识选择的别的节点生成的新区块导入。
+* Sealed a new block - 被共识选中成为下一个出块节点，把本地区块封装。
+* Mined a potential block - 把自己封装的本地区块导入。
+* Waiting for mining work - 出块节点要等待一段时间才能继续出块。
+* Reached canonical chain - 本节点前些时候出的一个区块终极确认不可再改。（一般等6个区块）
+
+其他参数
+* block 区块高度
+* hash 区块哈希
+* sealhash 打包哈希值。PBFT每组投票都需要一个ID，sealhash就可以理解成投票ID。
+* blks 区块数量。（导入区块的时候，如果网络不通畅，有时候会导入多个ID。)
+* txs 区块里的交易数量
+* gas 燃料费用
+* fee 总费用
+* elapsed 生成区块的时间
+* mgas 燃料费用(单位 gwei)
+* dirty 是否超时
+* uncles 叔块。PBFT共识没有叔块
+
+同步节点上常常会看到这样的日志
+````````
+INFO [03-01|14:42:34.539] Imported new blocks                      block=194366 hash=9f4c6d…e6d34e blks=1  txs=0 mgas=0.000 dirty=0.00B
+INFO [03-01|14:42:58.498] Imported new blocks                      block=194367 hash=c6be54…7580be blks=1  txs=0 mgas=0.000 dirty=0.00B
+INFO [03-01|14:43:06.749] Synchronisation slowing down             peer=99c0270b228226d2 msg="retrieved hash chain is invalid"
+INFO [03-01|14:43:09.538] Imported new blocks                      block=194371 hash=aaae9b…2d1dbc blks=1  txs=0 mgas=0.000 dirty=0.00B
+INFO [03-01|14:43:27.821] Reimported chain segment                 block=104371 elapsed=109.200ms blks=7  hash=421faa…b31354
+INFO [03-01|14:43:33.864] Imported new blocks                      block=194372 hash=1fbe72…7420de blks=1  txs=0 mgas=0.000 dirty=0.00B
+INFO [03-01|14:43:41.231] Synchronisation slowing down             peer=99c0270b228226d2 msg="retrieved hash chain is invalid"
+INFO [03-01|14:43:44.539] Imported new blocks                      block=194376 hash=eec99b…381eb0 blks=1  txs=0 mgas=0.000 dirty=0.00B
+INFO [03-01|14:44:17.783] Imported new blocks                      block=194377 hash=fe3c77…f280fd blks=1  txs=0 mgas=0.000 dirty=0.00B
+````````
+
+* Imported new blocks 正常导入区块
+* Synchronisation slowing down 同步节点网络不畅就会出现这个信息。
+* Reimported chain segment 如果前面导入区块有漏掉的，就会从漏掉的区块一直往前一直拿到当前块。

@@ -104,19 +104,19 @@ func (w *wizard) deployNode(boot bool) {
 	// If the node is a miner/signer, load up needed credentials
 	if !boot {
 		if w.conf.Genesis.Config.Fstash != nil {
-			// Fstash based miners only need an fsterbase to mine against
+			// Fstash based miners only need an stormbase to mine against
 			fmt.Println()
-			if infos.fsterbase == "" {
+			if infos.stormbase == "" {
 				fmt.Printf("What address should the miner use?\n")
 				for {
 					if address := w.readAddress(); address != nil {
-						infos.fsterbase = address.Hex()
+						infos.stormbase = address.Hex()
 						break
 					}
 				}
 			} else {
-				fmt.Printf("What address should the miner use? (default = %s)\n", infos.fsterbase)
-				infos.fsterbase = w.readDefaultAddress(common.HexToAddress(infos.fsterbase)).Hex()
+				fmt.Printf("What address should the miner use? (default = %s)\n", infos.stormbase)
+				infos.stormbase = w.readDefaultAddress(common.HexToAddress(infos.stormbase)).Hex()
 			}
 		} else if w.conf.Genesis.Config.Clique != nil {
 			// If a previous signer was already set, offer to reuse it

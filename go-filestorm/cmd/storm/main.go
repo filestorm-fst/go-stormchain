@@ -59,7 +59,7 @@ var (
 	nodeFlags = []cli.Flag{
 		utils.BlockSecFlag,
 		utils.ContractAddressFlag,
-		utils.FlushNumberFlag,
+		utils.FlushEpochFlag,
 		utils.NodeIpFlag,
 		utils.PrivateKeyFlag,
 		utils.InitValidatorsFlag,

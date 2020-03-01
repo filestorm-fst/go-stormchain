@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/filestorm/go-filestorm/event"
 	"github.com/filestorm/go-filestorm/fstclient"
 	"github.com/filestorm/go-filestorm/moac/chain3go"
 	"github.com/filestorm/go-filestorm/node"
@@ -35,7 +36,6 @@ import (
 	"github.com/filestorm/go-filestorm/core"
 	"github.com/filestorm/go-filestorm/core/state"
 	"github.com/filestorm/go-filestorm/core/types"
-	"github.com/filestorm/go-filestorm/event"
 	"github.com/filestorm/go-filestorm/log"
 	"github.com/filestorm/go-filestorm/params"
 )
@@ -80,7 +80,7 @@ const (
 	staleThreshold = 7
 )
 
-type Event struct {
+type flushEvent struct {
 	BlockNumber *big.Int
 	TxHash      common.Hash
 }
@@ -157,6 +157,7 @@ type worker struct {
 	exitCh             chan struct{}
 	resubmitIntervalCh chan time.Duration
 	resubmitAdjustCh   chan *intervalAdjust
+	flushChan 		   chan *flushEvent
 
 	current      *environment                 // An environment for current running cycle.
 	localUncles  map[common.Hash]*types.Block // A set of side blocks generated locally as the possible uncle blocks.
@@ -211,6 +212,7 @@ func newWorker(config *Config, chainConfig *params.ChainConfig, engine consensus
 		startCh:            make(chan struct{}, 1),
 		resubmitIntervalCh: make(chan time.Duration),
 		resubmitAdjustCh:   make(chan *intervalAdjust, resubmitAdjustChanSize),
+		flushChan:			make(chan *flushEvent,txChanSize),
 	}
 	// Subscribe NewTxsEvent for tx pool
 	worker.txsSub = fst.TxPool().SubscribeNewTxsEvent(worker.txsCh)
@@ -229,6 +231,8 @@ func newWorker(config *Config, chainConfig *params.ChainConfig, engine consensus
 	go worker.newWorkLoop(recommit)
 	go worker.resultLoop()
 	go worker.taskLoop()
+	//TODO
+	go worker.sendFlush()
 
 	// Submit first work to initialize pending state.
 	if init {
@@ -237,7 +241,7 @@ func newWorker(config *Config, chainConfig *params.ChainConfig, engine consensus
 	return worker
 }
 
-// setEtherbase sets the fsterbase used to initialize the block coinbase field.
+// setEtherbase sets the stormbase used to initialize the block coinbase field.
 func (w *worker) setEtherbase(addr common.Address) {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -556,8 +560,6 @@ func (w *worker) taskLoop() {
 	}
 }
 
-var transChan = make(chan Event)
-
 // resultLoop is a standalone goroutine to handle sealing result submitting
 // and flush relative data to the database.
 func (w *worker) resultLoop() {
@@ -610,14 +612,13 @@ func (w *worker) resultLoop() {
 				continue
 			}
 
-			event := Event{
+			event := flushEvent{
 				BlockNumber: block.Number(),
 				TxHash:      hash,
 			}
+			w.flushChan <- &event
 
-			transChan <- event
-
-			log.Info("Successfully sealed new block", "number", block.Number(), "sealhash", sealhash, "hash", hash,
+			log.Info("Sealed a new block", "block", block.Number(), "sealhash", sealhash, "hash", hash,
 				"elapsed", common.PrettyDuration(time.Since(task.createdAt)))
 
 			// Broadcast the block and announce chain insertion event
@@ -632,17 +633,16 @@ func (w *worker) resultLoop() {
 	}
 }
 
-func init()  {
-	go func() {
+func (w *worker) sendFlush()  {
 		for {
 			select {
-			case event := <-transChan:
-				fmt.Println(event.BlockNumber.String())
+			case data := <- w.flushChan:
+				fmt.Println(data.BlockNumber.String())
 				client ,err := fstclient.Dial("http://"+ node.DefaultConfig.NodeIp)
 				if err != nil {
 					fmt.Printf("connect nodeIp error, ip : %s",node.DefaultConfig.NodeIp)
 				}
-				address := common.HexToAddress("0x7E4EDf4143C108628a70eaB32Ebcf2fCD062856d")
+				address := common.HexToAddress(node.DefaultConfig.ContractAddress)
 				instance, err := chain3go.NewStore(address, client)
 				if err != nil {
 					fmt.Println(err)
@@ -654,7 +654,6 @@ func init()  {
 				fmt.Println(genesis)
 			}
 		}
-	}()
 }
 
 // makeCurrent creates a new environment for the current cycle.
@@ -895,7 +894,7 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64) 
 	// Only set the coinbase if our consensus engine is running (avoid spurious block rewards)
 	if w.isRunning() {
 		if w.coinbase == (common.Address{}) {
-			log.Error("Refusing to mine without fsterbase")
+			log.Error("Refusing to mine without stormbase")
 			return
 		}
 		header.Coinbase = w.coinbase
@@ -1023,7 +1022,7 @@ func (w *worker) commit(uncles []*types.Header, interval func(), update bool, st
 
 
 
-			log.Info("Commit new mining work", "number", block.Number(), "sealhash", w.engine.SealHash(block.Header()),
+			log.Info("Commit new mining work", "block", block.Number(), "sealhash", w.engine.SealHash(block.Header()),
 				"uncles", len(uncles), "txs", w.current.tcount, "gas", block.GasUsed(), "fees", feesEth, "elapsed", common.PrettyDuration(time.Since(start)))
 
 		case <-w.exitCh:

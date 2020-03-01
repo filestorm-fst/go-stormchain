@@ -43,7 +43,7 @@ type Backend interface {
 
 // Config is the configuration parameters of mining.
 type Config struct {
-	Fsterbase common.Address `toml:",omitempty"` // Public address for block mining rewards (default = first account)
+	Stormbase common.Address `toml:",omitempty"` // Public address for block mining rewards (default = first account)
 	Notify    []string       `toml:",omitempty"` // HTTP URL list to be notified of new work packages(only useful in fstash).
 	ExtraData hexutil.Bytes  `toml:",omitempty"` // Block extra data set by the miner
 	GasFloor  uint64         // Target gas floor for mined blocks.
