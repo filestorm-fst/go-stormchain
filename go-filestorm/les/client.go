@@ -77,7 +77,8 @@ func New(ctx *node.ServiceContext, config *fst.Config) (*LightFilestorm, error) 
 	if _, isCompat := genesisErr.(*params.ConfigCompatError); genesisErr != nil && !isCompat {
 		return nil, genesisErr
 	}
-	log.Info("Initialised chain configuration", "config", chainConfig)
+	log.Info("Initialised chain configuration")
+	//, "config", chainConfig.)
 
 	peers := newPeerSet()
 	leth := &LightFilestorm{
@@ -154,12 +155,12 @@ func New(ctx *node.ServiceContext, config *fst.Config) (*LightFilestorm, error) 
 
 type LightDummyAPI struct{}
 
-// Fsterbase is the address that mining rewards will be send to
-func (s *LightDummyAPI) Fsterbase() (common.Address, error) {
+// Stormbase is the address that mining rewards will be send to
+func (s *LightDummyAPI) Stormbase() (common.Address, error) {
 	return common.Address{}, fmt.Errorf("mining is not supported in light mode")
 }
 
-// Coinbase is the address that mining rewards will be send to (alias for Fsterbase)
+// Coinbase is the address that mining rewards will be send to (alias for Stormbase)
 func (s *LightDummyAPI) Coinbase() (common.Address, error) {
 	return common.Address{}, fmt.Errorf("mining is not supported in light mode")
 }

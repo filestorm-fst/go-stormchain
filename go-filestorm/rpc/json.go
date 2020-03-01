@@ -53,7 +53,7 @@ type jsonrpcMessage struct {
 	ID      json.RawMessage `json:"id,omitempty"`
 	Method  string          `json:"method,omitempty"`
 	Params  json.RawMessage `json:"params,omitempty"`
-	Error   *jsonError      `json:"error,omitempty"`
+	Error   *JsonError      `json:"error,omitempty"`
 	Result  json.RawMessage `json:"result,omitempty"`
 }
 
@@ -107,7 +107,7 @@ func (msg *jsonrpcMessage) response(result interface{}) *jsonrpcMessage {
 }
 
 func errorMessage(err error) *jsonrpcMessage {
-	msg := &jsonrpcMessage{Version: vsn, ID: null, Error: &jsonError{
+	msg := &jsonrpcMessage{Version: vsn, ID: null, Error: &JsonError{
 		Code:    defaultErrorCode,
 		Message: err.Error(),
 	}}
@@ -118,20 +118,20 @@ func errorMessage(err error) *jsonrpcMessage {
 	return msg
 }
 
-type jsonError struct {
+type JsonError struct {
 	Code    int         `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
-func (err *jsonError) Error() string {
+func (err *JsonError) Error() string {
 	if err.Message == "" {
 		return fmt.Sprintf("json-rpc error %d", err.Code)
 	}
 	return err.Message
 }
 
-func (err *jsonError) ErrorCode() int {
+func (err *JsonError) ErrorCode() int {
 	return err.Code
 }
 

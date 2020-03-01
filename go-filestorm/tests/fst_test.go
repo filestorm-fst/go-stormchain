@@ -12,6 +12,7 @@ import (
 	"github.com/filestorm/go-filestorm/crypto"
 	"github.com/filestorm/go-filestorm/fstclient"
 	"github.com/filestorm/go-filestorm/moac/chain3go"
+	moacclient "github.com/filestorm/go-filestorm/moac/chain3go/moaclient"
 	"github.com/tonnerre/golang-go.crypto/sha3"
 	"log"
 	"math"
@@ -148,7 +149,7 @@ func TestClientCallContract(t *testing.T) {
 	}
 	defer client.Close()
 
-	address := common.HexToAddress("0x56433d39e397bAcD6c8351Ed5E3a6864147999Df")
+	address := common.HexToAddress("0xCF15c289C31aa644fC911dC17e8f5F3497546804")
 	instance, err := chain3go.NewStore(address, client)
 	if err != nil {
 		log.Fatal(err)
@@ -197,23 +198,27 @@ func TestKeystoreToPrivateKey(t *testing.T)  {
 }
 
 func TestMOACClientDeployContract(t *testing.T) {
-	rpcClient := chain3go.NewRpcClient(moacClientIp, 101)
-	client, err := fstclient.Dial(moacClientIp)
-	//account := common.HexToAddress("0xd02443b8d564fed4ad332cd52508b69b511df5b8")
+	client, err := moacclient.Dial(moacClientIp)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	defer client.Close()
+	account := common.HexToAddress("0xd02443b8d564fed4ad332cd52508b69b511df5b8")
 
 	//1.set gasPrice and gasLimit
-	gasPrice, err := rpcClient.MC_gasPrice()
+	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
-	gasLimit := uint64(300000) // in units
+	gasLimit := uint64(400000) // in units
 	//2.set value (fst)
 	//value := new(big.Int)
 	//value.SetString("20000000000000000000", 10)
 	value := big.NewInt(0)
 	//3 get nonce
 	//nonce, err := rpcClient.PendingNonceAt(context.Background(), account)
-	nonce, err := rpcClient.MC_getTransactionCount("0xd02443b8d564fed4ad332cd52508b69b511df5b8", "pending")
+	nonce, err := client.PendingNonceAt(context.Background(),account)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -230,7 +235,7 @@ func TestMOACClientDeployContract(t *testing.T) {
 	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = value
 	auth.GasLimit = gasLimit
-	auth.GasPrice = big.NewInt(gasPrice)
+	auth.GasPrice = gasPrice
 
 	//deploy contract
 	//var initialValidators []common.Address

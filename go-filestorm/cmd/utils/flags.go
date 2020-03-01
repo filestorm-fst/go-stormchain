@@ -149,8 +149,8 @@ var (
 		Usage: "Block rate (Unit of second)",
 		Value: 15,
 	}
-	FlushNumberFlag = cli.Uint64Flag{
-		Name:  "flushNumber",
+	FlushEpochFlag = cli.Uint64Flag{
+		Name:  "flushEpoch",
 		Usage: "Number of blocks in one flash interval",
 	}
 	InitValidatorsFlag = cli.StringFlag{
@@ -470,13 +470,13 @@ var (
 		Value: fst.DefaultConfig.Miner.GasPrice,
 	}
 	MinerEtherbaseFlag = cli.StringFlag{
-		Name:  "miner.fsterbase",
+		Name:  "miner.stormbase",
 		Usage: "Public address for block mining rewards (default = first account)",
 		Value: "0",
 	}
 	MinerLegacyEtherbaseFlag = cli.StringFlag{
-		Name:  "fsterbase",
-		Usage: "Public address for block mining rewards (default = first account, deprecated, use --miner.fsterbase)",
+		Name:  "stormbase",
+		Usage: "Public address for block mining rewards (default = first account, deprecated, use --miner.stormbase)",
 		Value: "0",
 	}
 	MinerExtraDataFlag = cli.StringFlag{
@@ -1093,27 +1093,27 @@ func MakeAddress(ks *keystore.KeyStore, account string) (accounts.Account, error
 	return accs[index], nil
 }
 
-// setEtherbase retrieves the fsterbase either from the directly specified
+// setEtherbase retrieves the stormbase either from the directly specified
 // command line flags or from the keystore if CLI indexed.
 func setEtherbase(ctx *cli.Context, ks *keystore.KeyStore, cfg *fst.Config) {
-	// Extract the current fsterbase, new flag overriding legacy one
-	var fsterbase string
+	// Extract the current stormbase, new flag overriding legacy one
+	var stormbase string
 	if ctx.GlobalIsSet(MinerLegacyEtherbaseFlag.Name) {
-		fsterbase = ctx.GlobalString(MinerLegacyEtherbaseFlag.Name)
+		stormbase = ctx.GlobalString(MinerLegacyEtherbaseFlag.Name)
 	}
 	if ctx.GlobalIsSet(MinerEtherbaseFlag.Name) {
-		fsterbase = ctx.GlobalString(MinerEtherbaseFlag.Name)
+		stormbase = ctx.GlobalString(MinerEtherbaseFlag.Name)
 	}
-	// Convert the fsterbase into an address and configure it
-	if fsterbase != "" {
+	// Convert the stormbase into an address and configure it
+	if stormbase != "" {
 		if ks != nil {
-			account, err := MakeAddress(ks, fsterbase)
+			account, err := MakeAddress(ks, stormbase)
 			if err != nil {
-				Fatalf("Invalid miner fsterbase: %v", err)
+				Fatalf("Invalid miner stormbase: %v", err)
 			}
-			cfg.Miner.Fsterbase = account.Address
+			cfg.Miner.Stormbase = account.Address
 		} else {
-			Fatalf("No fsterbase configured")
+			Fatalf("No stormbase configured")
 		}
 	}
 }
@@ -1175,7 +1175,7 @@ func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
 	if lightClient {
 		ethPeers = 0
 	}
-	log.Info("Maximum peer count", "FST", ethPeers, "LES", lightPeers, "total", cfg.MaxPeers)
+	log.Info("Maximum peer count", "Full", ethPeers, "Light", lightPeers, "Total", cfg.MaxPeers)
 
 	if ctx.GlobalIsSet(MaxPendingPeersFlag.Name) {
 		cfg.MaxPendingPeers = ctx.GlobalInt(MaxPendingPeersFlag.Name)
@@ -1253,7 +1253,7 @@ func setSmartCard(ctx *cli.Context, cfg *node.Config) {
 	// Sanity check that the smartcard path is valid
 	fi, err := os.Stat(path)
 	if err != nil {
-		log.Info("Smartcard socket not found, disabling", "err", err)
+		// log.Info("Smartcard socket not found, disabling", "err", err)
 		return
 	}
 	if fi.Mode()&os.ModeType != os.ModeSocket {
