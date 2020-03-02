@@ -21,7 +21,7 @@ package pbft
 
 import (
 	"os"
-	"github.com/filestorm/go-filestorm/consensus/pbft"
+	"github.com/filestorm/go-filestorm/consensus/network"
 )
 
 func main() {

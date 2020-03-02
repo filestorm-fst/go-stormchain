@@ -19,7 +19,8 @@ package pbft
 
 import (
 	"fmt"
-	"github.com/filestorm/go-filestorm/pbft"
+	consensus "github.com/filestorm/go-filestorm/consensus/pbft"
+	
 )
 
 func LogMsg(msg interface{}) {
