@@ -1,15 +1,16 @@
-package pbft
+package network
 
 import (
-	"net/http"
-	""github.com/filestorm/go-filestorm/consensus/pbft""
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"bytes"
+	"net/http"
+
+	"github.com/filestorm/go-filestorm/consensus/pbft/consensus"
 )
 
 type Server struct {
-	url string
+	url  string
 	node *Node
 }
 
@@ -95,5 +96,5 @@ func (server *Server) getReply(writer http.ResponseWriter, request *http.Request
 
 func send(url string, msg []byte) {
 	buff := bytes.NewBuffer(msg)
-	http.Post("http://" + url, "application/json", buff)
+	http.Post("http://"+url, "application/json", buff)
 }

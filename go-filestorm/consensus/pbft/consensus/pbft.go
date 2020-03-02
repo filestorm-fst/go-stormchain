@@ -15,7 +15,7 @@
 // along with the go-filestorm library. If not, see <http://www.gnu.org/licenses/>.
 
 // Package pbft implements the practical Byzantine fault tolerance consensus engine.
-package pbft
+package consensus
 
 type PBFT interface {
 	StartConsensus(request *RequestMsg) (*PrePrepareMsg, error)

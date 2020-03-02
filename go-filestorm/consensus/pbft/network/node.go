@@ -1,11 +1,12 @@
-package pbft
+package network
 
 import (
-	""github.com/filestorm/go-filestorm/consensus/pbft""
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
-	"errors"
+
+	"github.com/filestorm/go-filestorm/consensus/pbft/consensus"
 )
 
 type Node struct {
@@ -41,18 +42,18 @@ func NewNode(nodeID string) *Node {
 		// Hard-coded for test.
 		NodeID: nodeID,
 		NodeTable: map[string]string{
-			"Apple": "localhost:1111",
-			"MS": "localhost:1112",
+			"Apple":  "localhost:1111",
+			"MS":     "localhost:1112",
 			"Google": "localhost:1113",
-			"IBM": "localhost:1114",
+			"IBM":    "localhost:1114",
 		},
 		View: &View{
-			ID: viewID,
+			ID:      viewID,
 			Primary: "Apple",
 		},
 
 		// Consensus-related struct
-		CurrentState: nil,
+		CurrentState:  nil,
 		CommittedMsgs: make([]*consensus.RequestMsg, 0),
 		MsgBuffer: &MsgBuffer{
 			ReqMsgs:        make([]*consensus.RequestMsg, 0),
@@ -64,7 +65,7 @@ func NewNode(nodeID string) *Node {
 		// Channels
 		MsgEntrance: make(chan interface{}),
 		MsgDelivery: make(chan interface{}),
-		Alarm: make(chan bool),
+		Alarm:       make(chan bool),
 	}
 
 	// Start message dispatcher
@@ -76,7 +77,7 @@ func NewNode(nodeID string) *Node {
 	// Start message resolver
 	go node.resolveMsg()
 
- 	return node
+	return node
 }
 
 func (node *Node) Broadcast(msg interface{}, path string) map[string]error {
@@ -93,7 +94,7 @@ func (node *Node) Broadcast(msg interface{}, path string) map[string]error {
 			continue
 		}
 
-		send(url + path, jsonMsg)
+		send(url+path, jsonMsg)
 	}
 
 	if len(errorMap) == 0 {
@@ -116,7 +117,7 @@ func (node *Node) Reply(msg *consensus.ReplyMsg) error {
 	}
 
 	// Client가 없으므로, 일단 Primary에게 보내는 걸로 처리.
-	send(node.NodeTable[node.View.Primary] + "/reply", jsonMsg)
+	send(node.NodeTable[node.View.Primary]+"/reply", jsonMsg)
 
 	return nil
 }
@@ -239,7 +240,7 @@ func (node *Node) createStateForNewConsensus() error {
 	if len(node.CommittedMsgs) == 0 {
 		lastSequenceID = -1
 	} else {
-		lastSequenceID = node.CommittedMsgs[len(node.CommittedMsgs) - 1].SequenceID
+		lastSequenceID = node.CommittedMsgs[len(node.CommittedMsgs)-1].SequenceID
 	}
 
 	// Create a new state for this new consensus process in the Primary

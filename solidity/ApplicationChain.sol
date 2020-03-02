@@ -14,10 +14,12 @@ contract ApplicationChain {
     address internal owner;
     mapping(address => uint) public admins;
     
+    string public chainName;
     uint256 public balance = 0;
     uint256 public chainId;
     uint256 public period;
     uint256 public flushEpoch;
+    uint256 public lastFlushedBlock = 0;
 
     string private genesisInfo;
     bool private genesisSet;
@@ -37,12 +39,12 @@ contract ApplicationChain {
     string extraData;
     uint256 tokenTotal;
 
-    uint256 public FOUNDATION_MOAC_REQUIRED_AMOUNT = 20 * 10 ** 18;
+    uint256 public FOUNDATION_MOAC_REQUIRED_AMOUNT = 10 * 10 ** 18;
     uint256 public FLUSH_AMOUNT = 1 * 10 ** 17;
     address public FOUNDATION_BLACK_HOLE_ADDRESS = 0x48328afc8dd45c1c252e7e883fc89bd17ddee7c0;
 
     // construct a chain with no token
-    constructor(uint256 blockSec, uint256 flushNumber, address[] initial_validators, uint256 exchangeRate) public payable {
+    constructor(string name, uint256 uniqueId, uint256 blockSec, uint256 flushNumber, address[] initial_validators, uint256 totalSupply) public payable {
         
         require(
             msg.value >= FOUNDATION_MOAC_REQUIRED_AMOUNT,
@@ -50,7 +52,8 @@ contract ApplicationChain {
         );
 
         owner = msg.sender;
-        chainId = block.number;
+        chainName = name;
+        chainId = uniqueId;
         period = blockSec;
         flushEpoch = flushNumber;
         balance = msg.value;
@@ -67,7 +70,7 @@ contract ApplicationChain {
         flushMapping[flushId].blockHash = "";      
         flushList.push(flushId);
 
-        tokenTotal = msg.value * exchangeRate; 
+        tokenTotal = totalSupply; 
 
         admins[msg.sender] = 1;
         
@@ -79,6 +82,17 @@ contract ApplicationChain {
         //     initial_validators[i].transfer(gasNeededEach);
         // }
         // End of Option
+    }
+
+    function updateChainName(string name) {
+        require(admins[msg.sender] == 1, "Only Admins Can Update Chain Name.");
+        chainName = name;
+    }
+
+    function updateFlushEpoch(uint256 newEpoch) {
+        require(admins[msg.sender] == 1, "Only Admins Can Update Flush Epoch.");
+        require(newEpoch >= 360, "Flush Epoch Must be Equal to or Greater than 360.");
+        flushEpoch = newEpoch;
     }
 
     function addAdmin(address admin) public {
@@ -106,11 +120,15 @@ contract ApplicationChain {
     }
 
     function flush(address[] current_validators, uint256 blockNumber, string blockHash) public {
+
+        // do nothing if balance is less than 0.
+        require(balance > 0);
+
         uint256 flushId = flushList.length-1;
         for (uint i=0; i<flushValidatorList[flushId].length; i++){
             if ((flushValidatorList[flushId][i]==msg.sender ||
                 admins[msg.sender] == 1 ) &&
-                flushMapping[flushId].blockNumber + flushEpoch == blockNumber){
+                lastFlushedBlock + flushEpoch == blockNumber){
 
                 flushId++;
                 flushMapping[flushId].flushId = flushId;
@@ -125,6 +143,7 @@ contract ApplicationChain {
                 // sent MOAC to FOUNDATION_BLACK_HOLE_ADDRESS;
                 balance -= FLUSH_AMOUNT;
                 FOUNDATION_BLACK_HOLE_ADDRESS.transfer(FLUSH_AMOUNT);
+                lastFlushedBlock = flushMapping[flushId].blockNumber;
                 return;
             }
         }

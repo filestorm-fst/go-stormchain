@@ -16,12 +16,12 @@
 
 // Package pbft implements the practical Byzantine fault tolerance consensus engine.
 
-
 package pbft
 
 import (
 	"os"
-	"github.com/filestorm/go-filestorm/consensus/pbft"
+
+	"github/filestorm/go-filestorm/consensus/pbft/network"
 )
 
 func main() {
