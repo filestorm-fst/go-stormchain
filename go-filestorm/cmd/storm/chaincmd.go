@@ -18,12 +18,9 @@ package main
 
 import (
 	"bytes"
-	"context"
+	// "context"
 	"encoding/json"
 	"fmt"
-	"github.com/filestorm/go-filestorm/fstclient"
-	"github.com/filestorm/go-filestorm/moac/chain3go"
-	"github.com/filestorm/go-filestorm/params"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -32,6 +29,9 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/filestorm/go-filestorm/fstclient"
+	"github.com/filestorm/go-filestorm/params"
 
 	"github.com/filestorm/go-filestorm/cmd/utils"
 	"github.com/filestorm/go-filestorm/common"
@@ -200,23 +200,13 @@ Use "filestorm dump 0" to dump the genesis block.`,
 // initGenesis will initialise the given JSON format genesis file and writes it as
 // the zero'd block (i.e. genesis) or will fail hard if it can't succeed.
 func initGenesis(ctx *cli.Context) error {
-	parentContext := ctx.Parent()
-	nodeIp := parentContext.String("nodeIp")
-	client ,err := fstclient.Dial("http://"+nodeIp)
-	if err != nil {
-		utils.Fatalf("nodeIp connect error ,nodeIp: %s", nodeIp)
-	}
-	defer client.Close()
-
 	// Make sure we have a valid genesis JSON
 	genesisPath := ctx.Args().First()
 	genesis := new(core.Genesis)
 	if len(genesisPath) == 0 {
-		initValidators := parentContext.String("initValidators")
 		//utils.Fatalf("Must supply path to genesis JSON file")
-		// Construct a default genesis block
 		genesis = &core.Genesis{
-			Timestamp: uint64(time.Now().Unix()),
+			Timestamp:  uint64(time.Now().Unix()),
 			GasLimit:   4700000,
 			Difficulty: big.NewInt(524288),
 			Alloc:      make(core.GenesisAlloc),
@@ -231,26 +221,46 @@ func initGenesis(ctx *cli.Context) error {
 				IstanbulBlock:       big.NewInt(0),
 			},
 		}
-		// In the case of clique, configure the consensus parameters
+		// Construct a default genesis block
+		parentContext := ctx.Parent()
+
+		// Set Difficulty = 1;
 		genesis.Difficulty = big.NewInt(1)
+
+		// Set block second and flush epoch for PBFT consensus.
 		genesis.Config.Pbft = &params.PbftConfig{
-			Period: parentContext.Uint64("blockSec"),
-			Epoch:  36000,
+			Period:     parentContext.Uint64("blockSec"),
+			Epoch:      36000,
 			FlushEpoch: parentContext.Uint64("flushEpoch"),
 		}
 
+		// connect to the IP of another chain.
+		connectIp := parentContext.String("connectIp")
+		client, err := fstclient.Dial("http://" + connectIp)
+		if err != nil {
+			utils.Fatalf("Connecting node error. IP: %s", connectIp)
+		}
+		defer client.Close()
+
+		initValidators := parentContext.String("initValidators")
 		var signers []common.Address
-		validators := strings.Split(initValidators,",")
-		for _,v := range validators{
-			address := common.HexToAddress(v)
+		validators := strings.Split(initValidators, ",")
+		for _, v := range validators {
+			address := common.HexToAddress(strings.TrimSpace(v))
 			signers = append(signers, address)
 		}
 		if len(signers) <= 0 {
 			utils.Fatalf("Validator at least one")
 		}
-		balance := new(big.Int)
-		balance.SetString("200000000000000000000000000", 10)
-		genesis.Alloc[common.HexToAddress(validators[0])] = core.GenesisAccount{Balance: balance}
+
+		// give balance to the first validator.
+		if parentContext.Uint64("totalSupply") > 0 {
+			balance := new(big.Int)
+			balanceStr := strconv.FormatUint(parentContext.Uint64("totalSupply"), 10) + "000000000000000000"
+			balance.SetString(balanceStr, 10)
+			genesis.Alloc[common.HexToAddress(validators[0])] = core.GenesisAccount{Balance: balance}
+		}
+
 		// Sort the signers and embed into the extra-data section
 		for i := 0; i < len(signers); i++ {
 			for j := i + 1; j < len(signers); j++ {
@@ -259,17 +269,42 @@ func initGenesis(ctx *cli.Context) error {
 				}
 			}
 		}
+		// default gas limit is 900000000
+		genesis.GasLimit = 900000000
 		genesis.ExtraData = make([]byte, 32+len(signers)*common.AddressLength+65)
 		for i, signer := range signers {
 			copy(genesis.ExtraData[32+i*common.AddressLength:], signer[:])
 		}
-		blockByNumber, err := client.HeaderByNumber(context.Background(),nil)
-		if err != nil {
-			utils.Fatalf("query blockNumber error")
-		}
-		genesis.Config.ChainID = blockByNumber.Number
 
-	}else {
+		// blockByNumber, err := client.HeaderByNumber(context.Background(),nil)
+		// if err != nil {
+		// 	utils.Fatalf("query blockNumber error")
+		// }
+
+		// use nano time to create unique chain id.
+		genesis.Config.ChainID = big.NewInt(time.Now().UnixNano())
+
+		genesisJson, err := json.Marshal(genesis)
+
+		// contract, tx, err := chain3go.ClientDeployContract(client, parentContext.String("privateKey"), string(genesisJson))
+		// if err != nil {
+		// 	utils.Fatalf("Client Deploy Contract error", err)
+		// }
+
+		genesisPath = genesis.Config.ChainID.String() + ".json"
+		f, err := os.Create(genesisPath)
+		if err != nil {
+			utils.Fatalf("Can't create genesis file.")
+		}
+		defer f.Close()
+
+		_, err = f.WriteString(string(genesisJson))
+		if err != nil {
+			utils.Fatalf("Can't write to genesis file.")
+		}
+		f.Sync()
+
+	} else {
 		file, err := os.Open(genesisPath)
 		if err != nil {
 			utils.Fatalf("Failed to read genesis file: %v", err)
@@ -296,16 +331,6 @@ func initGenesis(ctx *cli.Context) error {
 		chaindb.Close()
 		log.Info("Successfully wrote genesis state", "database", name, "hash", hash)
 	}
-
-	genesisJson, err := json.Marshal(genesis)
-
-	contract, tx, err := chain3go.ClientDeployContract(client, parentContext.String("privateKey"), string(genesisJson))
-	if err != nil {
-		utils.Fatalf("Client Deploy Contract error", err)
-	}
-	fmt.Printf("\nYour contract has depolyed\n\n")
-	fmt.Printf("Contract address is:   %s\n", contract)
-	fmt.Printf("Transaction hash is: %s", tx)
 	return nil
 }
 
