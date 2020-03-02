@@ -20,14 +20,15 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/filestorm/go-filestorm/event"
-	"github.com/filestorm/go-filestorm/fstclient"
-	"github.com/filestorm/go-filestorm/moac/chain3go"
-	"github.com/filestorm/go-filestorm/node"
 	"math/big"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/filestorm/go-filestorm/event"
+	"github.com/filestorm/go-filestorm/fstclient"
+	"github.com/filestorm/go-filestorm/moac/chain3go"
+	"github.com/filestorm/go-filestorm/node"
 
 	mapset "github.com/deckarep/golang-set"
 	"github.com/filestorm/go-filestorm/common"
@@ -157,7 +158,7 @@ type worker struct {
 	exitCh             chan struct{}
 	resubmitIntervalCh chan time.Duration
 	resubmitAdjustCh   chan *intervalAdjust
-	flushChan 		   chan *flushEvent
+	flushChan          chan *flushEvent
 
 	current      *environment                 // An environment for current running cycle.
 	localUncles  map[common.Hash]*types.Block // A set of side blocks generated locally as the possible uncle blocks.
@@ -212,7 +213,7 @@ func newWorker(config *Config, chainConfig *params.ChainConfig, engine consensus
 		startCh:            make(chan struct{}, 1),
 		resubmitIntervalCh: make(chan time.Duration),
 		resubmitAdjustCh:   make(chan *intervalAdjust, resubmitAdjustChanSize),
-		flushChan:			make(chan *flushEvent,txChanSize),
+		flushChan:          make(chan *flushEvent, txChanSize),
 	}
 	// Subscribe NewTxsEvent for tx pool
 	worker.txsSub = fst.TxPool().SubscribeNewTxsEvent(worker.txsCh)
@@ -612,11 +613,11 @@ func (w *worker) resultLoop() {
 				continue
 			}
 
-			event := flushEvent{
-				BlockNumber: block.Number(),
-				TxHash:      hash,
-			}
-			w.flushChan <- &event
+			// event := flushEvent{
+			// 	BlockNumber: block.Number(),
+			// 	TxHash:      hash,
+			// }
+			// w.flushChan <- &event
 
 			log.Info("Sealed a new block", "block", block.Number(), "sealhash", sealhash, "hash", hash,
 				"elapsed", common.PrettyDuration(time.Since(task.createdAt)))
@@ -633,27 +634,34 @@ func (w *worker) resultLoop() {
 	}
 }
 
-func (w *worker) sendFlush()  {
-		for {
-			select {
-			case data := <- w.flushChan:
-				fmt.Println(data.BlockNumber.String())
-				client ,err := fstclient.Dial("http://"+ node.DefaultConfig.NodeIp)
-				if err != nil {
-					fmt.Printf("connect nodeIp error, ip : %s",node.DefaultConfig.NodeIp)
-				}
-				address := common.HexToAddress(node.DefaultConfig.ContractAddress)
-				instance, err := chain3go.NewStore(address, client)
-				if err != nil {
-					fmt.Println(err)
-				}
-				genesis, err := instance.Version(nil)
-				if err != nil {
-					fmt.Println(err)
-				}
-				fmt.Println(genesis)
+func (w *worker) sendFlush() {
+	for {
+		select {
+
+		// flushEpoch = config.flushEpoch
+		// lastFlushBlock = last fluesh block
+		// flushWait = 10 (wait 10 blocks to flush)
+		case data := <-w.flushChan:
+
+			// if data.BlockNumber >= flushEpoch + lastFlushBlock + flushWait
+
+			fmt.Println(data.BlockNumber.String())
+			client, err := fstclient.Dial("http://" + node.DefaultConfig.NodeIp)
+			if err != nil {
+				fmt.Printf("connect nodeIp error, ip : %s", node.DefaultConfig.NodeIp)
 			}
+			address := common.HexToAddress(node.DefaultConfig.ContractAddress)
+			instance, err := chain3go.NewStore(address, client)
+			if err != nil {
+				fmt.Println(err)
+			}
+			genesis, err := instance.Version(nil)
+			if err != nil {
+				fmt.Println(err)
+			}
+			fmt.Println(genesis)
 		}
+	}
 }
 
 // makeCurrent creates a new environment for the current cycle.
@@ -1019,8 +1027,6 @@ func (w *worker) commit(uncles []*types.Header, interval func(), update bool, st
 				feesWei.Add(feesWei, new(big.Int).Mul(new(big.Int).SetUint64(receipts[i].GasUsed), tx.GasPrice()))
 			}
 			feesEth := new(big.Float).Quo(new(big.Float).SetInt(feesWei), new(big.Float).SetInt(big.NewInt(params.Ether)))
-
-
 
 			log.Info("Commit new mining work", "block", block.Number(), "sealhash", w.engine.SealHash(block.Header()),
 				"uncles", len(uncles), "txs", w.current.tcount, "gas", block.GasUsed(), "fees", feesEth, "elapsed", common.PrettyDuration(time.Since(start)))
