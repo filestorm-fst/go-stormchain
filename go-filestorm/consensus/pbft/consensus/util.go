@@ -16,7 +16,7 @@
 
 // Package pbft implements the practical Byzantine fault tolerance consensus engine.
 
-package pbft
+package consensus
 
 import (
 	"crypto/sha256"
@@ -28,4 +28,3 @@ func Hash(content []byte) string {
 	h.Write(content)
 	return hex.EncodeToString(h.Sum(nil))
 }
-

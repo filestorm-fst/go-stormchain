@@ -146,33 +146,40 @@ var (
 	}
 	BlockSecFlag = cli.Uint64Flag{
 		Name:  "blockSec",
-		Usage: "Block rate (Unit of second)",
-		Value: 15,
+		Usage: "Block time (Unit of second)",
+		Value: 10,
 	}
 	FlushEpochFlag = cli.Uint64Flag{
 		Name:  "flushEpoch",
-		Usage: "Number of blocks in one flash interval",
+		Usage: "Number of blocks in one flush interval",
+		Value: 360,
 	}
 	InitValidatorsFlag = cli.StringFlag{
 		Name:  "initValidators",
-		Usage: `List of initial authorized nodes`,
+		Usage: `List of initial authorized validators`,
 	}
-	ExchangeRateFlag = cli.Uint64Flag{
-		Name:  "exchangeRate",
-		Usage: "Token exchange ratio",
+	TotalSupplyFlag = cli.Uint64Flag{
+		Name:  "totalSupply",
+		Usage: "Total tokens issued",
+		Value: 0,
 	}
-	NodeIpFlag = cli.StringFlag{
-		Name:  "nodeIp",
-		Usage: `node's ip`,
+	ConnectTypeFlag = cli.StringFlag{
+		Name:  "connectType",
+		Usage: `Connect type - Ethereum, Moac, Storm`,
+		Value: "Storm",
+	}
+	ConnectIpFlag = cli.StringFlag{
+		Name:  "connectIp",
+		Usage: `connect's ip`,
 	}
 	ContractAddressFlag = cli.StringFlag{
 		Name:  "contractAddress",
 		Usage: `Contract address`,
 	}
-	PrivateKeyFlag = cli.StringFlag{
-		Name:  "privateKey",
-		Usage: `Private contract for initializing the chain`,
-	}
+	// PrivateKeyFlag = cli.StringFlag{
+	// 	Name:  "privateKey",
+	// 	Usage: `Private contract for initializing the chain`,
+	// }
 	AncientFlag = DirectoryFlag{
 		Name:  "datadir.ancient",
 		Usage: "Data directory for ancient chain segments (default = inside chaindata)",
@@ -911,10 +918,10 @@ func setListenAddress(ctx *cli.Context, cfg *p2p.Config) {
 // setListenAddress creates a TCP listening address string from set command
 // line flags.
 //TODO
-func setNodeIp(ctx *cli.Context, cfg *node.Config) {
-	if ctx.GlobalIsSet(NodeIpFlag.Name) {
-		cfg.NodeIp = ctx.GlobalString(NodeIpFlag.Name)
-		node.DefaultConfig.NodeIp = ctx.GlobalString(NodeIpFlag.Name)
+func setConnectIp(ctx *cli.Context, cfg *node.Config) {
+	if ctx.GlobalIsSet(ConnectIpFlag.Name) {
+		cfg.NodeIp = ctx.GlobalString(ConnectIpFlag.Name)
+		node.DefaultConfig.NodeIp = ctx.GlobalString(ConnectIpFlag.Name)
 	}
 }
 //TODO
@@ -1222,7 +1229,7 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	setDataDir(ctx, cfg)
 	setSmartCard(ctx, cfg)
 	//TODO
-	setNodeIp(ctx,cfg)
+	setConnectIp(ctx,cfg)
 	//TODO
 	setContractAddress(ctx,cfg)
 

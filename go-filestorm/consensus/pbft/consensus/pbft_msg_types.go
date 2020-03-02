@@ -15,7 +15,7 @@
 // along with the go-filestorm library. If not, see <http://www.gnu.org/licenses/>.
 
 // Package pbft implements the practical Byzantine fault tolerance consensus engine.
-package pbft
+package consensus
 
 type RequestMsg struct {
 	Timestamp  int64  `json:"timestamp"`
@@ -44,10 +44,11 @@ type VoteMsg struct {
 	SequenceID int64  `json:"sequenceID"`
 	Digest     string `json:"digest"`
 	NodeID     string `json:"nodeID"`
-	MsgType           `json:"msgType"`
+	MsgType    `json:"msgType"`
 }
 
 type MsgType int
+
 const (
 	PrepareMsg MsgType = iota
 	CommitMsg
