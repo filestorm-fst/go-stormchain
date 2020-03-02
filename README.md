@@ -328,6 +328,8 @@ INFO [03-01|14:10:12.006] Waiting for mining work.
 
 INFO [03-01|14:10:02.002] Reached canonical chain                  block=8937 hash=9c2b14…75ef51
 
+INFO [03-01|15:10:02.012] Throw away a block                       block=8947 hash=8a7231…20c7bd
+
 ````````
 这是一个出块节点上常见的日志，我们来解释一下。
 
@@ -337,6 +339,7 @@ INFO [03-01|14:10:02.002] Reached canonical chain                  block=8937 ha
 * Mined a potential block - 把自己封装的本地区块导入。
 * Waiting for mining work - 出块节点要等待一段时间才能继续出块。
 * Reached canonical chain - 本节点前些时候出的一个区块终极确认不可再改。（一般等6个区块）
+* Throw away a block - 本节点前些时候出的一个区块无效被别的节点替代（常见于网络不畅时收到出块节点太慢）
 
 其他参数
 * block 区块高度
