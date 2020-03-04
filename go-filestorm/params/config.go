@@ -237,7 +237,7 @@ var (
 	//
 	// This configuration is intentionally not using keyed fields to force anyone
 	// adding flags to the config to also have to set these fields.
-	AllPbftProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, nil, nil, nil, &PbftConfig{Period: 0, Epoch: 36000}}
+	AllPbftProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, nil, nil, nil, &PbftConfig{Period: 0, Epoch: 36000, FlushEpoch: 360}}
 
 	TestChainConfig = &ChainConfig{big.NewInt(1), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), big.NewInt(0), nil, nil, new(FstashConfig), nil, nil}
 	TestRules       = TestChainConfig.Rules(new(big.Int))
@@ -339,8 +339,8 @@ func (c *CliqueConfig) String() string {
 
 // PbftConfig is the consensus engine configs for pbft based sealing.
 type PbftConfig struct {
-	Period uint64 `json:"period"` // Number of seconds between blocks to enforce
-	Epoch  uint64 `json:"epoch"`  // Epoch length to reset votes and checkpoint
+	Period     uint64 `json:"period"`     // Number of seconds between blocks to enforce
+	Epoch      uint64 `json:"epoch"`      // Epoch length to reset votes and checkpoint
 	FlushEpoch uint64 `json:"FlushEpoch"` //Number of blocks in one flash interval
 }
 
