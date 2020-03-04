@@ -30,7 +30,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/filestorm/go-filestorm/fstclient"
 	"github.com/filestorm/go-filestorm/params"
 
 	"github.com/filestorm/go-filestorm/cmd/utils"
@@ -235,12 +234,12 @@ func initGenesis(ctx *cli.Context) error {
 		}
 
 		// connect to the IP of another chain.
-		connectIp := parentContext.String("connectIp")
-		client, err := fstclient.Dial("http://" + connectIp)
-		if err != nil {
-			utils.Fatalf("Connecting node error. IP: %s", connectIp)
-		}
-		defer client.Close()
+		// connectIp := parentContext.String("connectIp")
+		// client, err := fstclient.Dial("http://" + connectIp)
+		// if err != nil {
+		// 	utils.Fatalf("Connecting node error. IP: %s", connectIp)
+		// }
+		// defer client.Close()
 
 		initValidators := parentContext.String("initValidators")
 		var signers []common.Address
@@ -281,8 +280,13 @@ func initGenesis(ctx *cli.Context) error {
 		// 	utils.Fatalf("query blockNumber error")
 		// }
 
-		// use nano time to create unique chain id.
-		genesis.Config.ChainID = big.NewInt(time.Now().UnixNano())
+		// use networkid. if not provided, use nano time to create unique chain id.
+
+		if parentContext.Uint64("networkid") == 1 {
+			genesis.Config.ChainID = big.NewInt(time.Now().UnixNano())
+		} else {
+			genesis.Config.ChainID = big.NewInt(int64(parentContext.Uint64("networkid")))
+		}
 
 		genesisJson, err := json.Marshal(genesis)
 
@@ -303,6 +307,8 @@ func initGenesis(ctx *cli.Context) error {
 			utils.Fatalf("Can't write to genesis file.")
 		}
 		f.Sync()
+
+		fmt.Println("Genesis file has been created: " + genesisPath)
 
 	} else {
 		file, err := os.Open(genesisPath)

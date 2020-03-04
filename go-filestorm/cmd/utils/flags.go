@@ -199,7 +199,7 @@ var (
 	}
 	NetworkIdFlag = cli.Uint64Flag{
 		Name:  "networkid",
-		Usage: "Network identifier (integer, 1=Frontier, 2=Morden (disused), 3=Ropsten, 4=Rinkeby)",
+		Usage: "Network identifier (integer)",
 		Value: fst.DefaultConfig.NetworkId,
 	}
 	TestnetFlag = cli.BoolFlag{
@@ -924,6 +924,7 @@ func setConnectIp(ctx *cli.Context, cfg *node.Config) {
 		node.DefaultConfig.NodeIp = ctx.GlobalString(ConnectIpFlag.Name)
 	}
 }
+
 //TODO
 func setContractAddress(ctx *cli.Context, cfg *node.Config) {
 	if ctx.GlobalIsSet(ContractAddressFlag.Name) {
@@ -1229,9 +1230,9 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	setDataDir(ctx, cfg)
 	setSmartCard(ctx, cfg)
 	//TODO
-	setConnectIp(ctx,cfg)
+	setConnectIp(ctx, cfg)
 	//TODO
-	setContractAddress(ctx,cfg)
+	setContractAddress(ctx, cfg)
 
 	if ctx.GlobalIsSet(ExternalSignerFlag.Name) {
 		cfg.ExternalSigner = ctx.GlobalString(ExternalSignerFlag.Name)
