@@ -19,16 +19,12 @@ package miner
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"math/big"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/filestorm/go-filestorm/event"
-	"github.com/filestorm/go-filestorm/fstclient"
-	"github.com/filestorm/go-filestorm/moac/chain3go"
-	"github.com/filestorm/go-filestorm/node"
 
 	mapset "github.com/deckarep/golang-set"
 	"github.com/filestorm/go-filestorm/common"
@@ -495,7 +491,7 @@ func (w *worker) mainLoop() {
 			} else {
 				// If clique is running in dev mode(period is 0), disable
 				// advance sealing here.
-				if w.chainConfig.Clique != nil && w.chainConfig.Clique.Period == 0 {
+				if w.chainConfig.Pbft != nil && w.chainConfig.Pbft.Period == 0 {
 					w.commitNewWork(nil, true, time.Now().Unix())
 				}
 			}
@@ -613,11 +609,14 @@ func (w *worker) resultLoop() {
 				continue
 			}
 
-			// event := flushEvent{
-			// 	BlockNumber: block.Number(),
-			// 	TxHash:      hash,
-			// }
-			// w.flushChan <- &event
+			flushEpoch := int64(w.chainConfig.Pbft.FlushEpoch)
+			if flushEpoch != 0 {
+				event := flushEvent{
+					BlockNumber: block.Number(),
+					TxHash:      hash,
+				}
+				w.flushChan <- &event
+			}
 
 			log.Info("Sealed a new block", "block", block.Number(), "sealhash", sealhash, "hash", hash,
 				"elapsed", common.PrettyDuration(time.Since(task.createdAt)))
@@ -635,31 +634,36 @@ func (w *worker) resultLoop() {
 }
 
 func (w *worker) sendFlush() {
+
+	flushEpoch := int64(w.chainConfig.Pbft.FlushEpoch)
+	flushWait := int64(10) // wait 10 blocks to flush
+
 	for {
 		select {
-
-		// flushEpoch = config.flushEpoch
-		// lastFlushBlock = last fluesh block
-		// flushWait = 10 (wait 10 blocks to flush)
 		case data := <-w.flushChan:
 
-			// if data.BlockNumber >= flushEpoch + lastFlushBlock + flushWait
+			mod := new(big.Int)
+			mod = mod.Mod(data.BlockNumber, big.NewInt(flushEpoch))
+			if mod.Cmp(big.NewInt(flushWait)) == 0 {
+				// do flushing
+				log.Info("---flushing to moac mainnet-->", "network", w.chainConfig.ChainID)
+			}
 
-			fmt.Println(data.BlockNumber.String())
-			client, err := fstclient.Dial("http://" + node.DefaultConfig.NodeIp)
-			if err != nil {
-				fmt.Printf("connect nodeIp error, ip : %s", node.DefaultConfig.NodeIp)
-			}
-			address := common.HexToAddress(node.DefaultConfig.ContractAddress)
-			instance, err := chain3go.NewStore(address, client)
-			if err != nil {
-				fmt.Println(err)
-			}
-			genesis, err := instance.Version(nil)
-			if err != nil {
-				fmt.Println(err)
-			}
-			fmt.Println(genesis)
+			// fmt.Println(data.BlockNumber.String())
+			// client, err := fstclient.Dial("http://" + node.DefaultConfig.NodeIp)
+			// if err != nil {
+			// 	fmt.Printf("connect nodeIp error, ip : %s", node.DefaultConfig.NodeIp)
+			// }
+			// address := common.HexToAddress(node.DefaultConfig.ContractAddress)
+			// instance, err := chain3go.NewStore(address, client)
+			// if err != nil {
+			// 	fmt.Println(err)
+			// }
+			// genesis, err := instance.Version(nil)
+			// if err != nil {
+			// 	fmt.Println(err)
+			// }
+			// fmt.Println(genesis)
 		}
 	}
 }
