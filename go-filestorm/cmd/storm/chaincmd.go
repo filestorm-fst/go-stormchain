@@ -310,17 +310,18 @@ func initGenesis(ctx *cli.Context) error {
 
 		fmt.Println("Genesis file has been created: " + genesisPath)
 
-	} else {
-		file, err := os.Open(genesisPath)
-		if err != nil {
-			utils.Fatalf("Failed to read genesis file: %v", err)
-		}
-		defer file.Close()
-
-		if err := json.NewDecoder(file).Decode(genesis); err != nil {
-			utils.Fatalf("invalid genesis file: %v", err)
-		}
 	}
+
+	file, err := os.Open(genesisPath)
+	if err != nil {
+		utils.Fatalf("Failed to read genesis file: %v", err)
+	}
+	defer file.Close()
+
+	if err := json.NewDecoder(file).Decode(genesis); err != nil {
+		utils.Fatalf("invalid genesis file: %v", err)
+	}
+
 	// Open an initialise both full and light databases
 	stack := makeFullNode(ctx)
 	defer stack.Close()
