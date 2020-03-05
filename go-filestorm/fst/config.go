@@ -34,6 +34,8 @@ import (
 )
 
 // DefaultConfig contains default settings for use on the Filestorm main net.
+// TO DO: for PBFT consensus, we need to read the GasFloor and GasCeil from genesis file.
+// Issue #5 created.
 var DefaultConfig = Config{
 	SyncMode: downloader.FastSync,
 	Fstash: fstash.Config{
