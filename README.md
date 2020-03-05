@@ -3,7 +3,7 @@ go-stormchain is a blockchain technology that implements a multichain ecosystem 
 
 ## 公有链技术
 
-由全球代码爱好者组成，共同开发和管理的，支持多种共识的多链架构区块链技术。信息公开，技术开源，可以为应用提供专属区块链，支持高TPS。自带区块链存储功能，使用方便。本技术还在持续开发中。
+由全球区块链技术爱好者组成，共同开发和管理的，支持多种共识的多链架构区块链技术。信息公开，技术开源，可以为应用提供专属区块链，支持高TPS。自带区块链存储功能，使用方便。本技术还在持续开发中。
 
 ## 联盟链技术
 
@@ -18,7 +18,7 @@ go-stormchain is a blockchain technology that implements a multichain ecosystem 
 
 (You have to click on the link, click "View Raw" and download the file as storm-linux.dms or storm-os.dms. Rename the files to storm.)
 
-将 storm 和 storm_chain.json 复制到需要安装的节点服务器上。在这个指南中，我们将使用三台装有 Ubuntu 操作系统的服务器。（Storm区块链至少需要两个节点才能运行。）在服务器上，可以建立新文件夹 storm_node 作为节点运行根目录。将两个文件存到这个目录下。(如果要在同一个服务器上跑多个节点，可以生成多个文件夹如 storm_node1, storm_node2，然后执行下面的步骤。）
+将 storm 复制到需要安装的节点服务器上。在这个指南中，我们将使用三台装有 Ubuntu 操作系统的服务器。（Storm区块链至少需要两个节点才能运行。）在服务器上，可以建立新文件夹 storm_node 作为节点运行根目录。将执行文件 storm 存到这个目录下。(如果要在同一个服务器上跑多个节点，可以生成多个文件夹如 storm_node1, storm_node2，然后执行下面的步骤。）
 
 ### 第一步 建立账号
 
@@ -308,7 +308,7 @@ INFO [03-01|15:10:02.012] Throw away a block                       block=8947 ha
 * elapsed 生成区块的时间
 * mgas 燃料费用(单位 gwei)
 * dirty 是否超时
-* uncles 叔块。PBFT共识没有叔块
+* uncles 叔块。网络延时很大的情况下会出现叔块。
 
 同步节点上常常会看到这样的日志
 ````````
