@@ -7,7 +7,7 @@ pragma solidity =0.4.24 <0.6.3;
  * This is the first step of building an application chain.
  */
 
-contract ApplicationChain {
+contract AppChainBase {
 
     using SafeMath for uint256;
 
