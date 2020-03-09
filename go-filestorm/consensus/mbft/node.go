@@ -8,6 +8,7 @@ import (
 
 	"github.com/filestorm/go-filestorm/consensus/mbft/crypto"
 	"github.com/filestorm/go-filestorm/consensus/mbft/types"
+	
 	"go.uber.org/zap"
 )
 
@@ -50,7 +51,8 @@ func NewNode(logger *zap.Logger, store *BlockStore, priv crypto.PrivateKey, conf
 			rid = id
 		}
 	}
-	// verifier := crypto.NewBLS12381Verifier(2*len(pubs)/3+1, pubs)
+	//verifier := crypto.NewBLS12381Verifier(2*len(pubs)/3+1, pubs)
+	//consensus := newConsensus(logger, store, signer, verifier, rid, ids)
 	consensus := newConsensus(logger, store, signer, nil, rid, ids)
 	n := &Node{
 		logger:      logger,
