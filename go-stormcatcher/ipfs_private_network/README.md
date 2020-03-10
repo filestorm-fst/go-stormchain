@@ -12,11 +12,16 @@ IPFS的下载和安装可以看这里 [https://golang.org/doc/install](https://g
 
 [下载安装包](https://golang.org/dl/)以后，解压到`/usr/local`中
 
-`sudo tar -C /usr/local -xzf go1.11.4.linux-amd64.tar.gz`
+`````
+sudo tar -C /usr/local -xzf go1.11.4.linux-amd64.tar.gz`
+`````
 
-然后生成一个GOPATH `/usr/local/go/bin`
+然后生成一个GOPATH `/usr/local/go/bin
 
-`export PATH=$PATH:/usr/local/go/bin`
+`````
+export PATH=$PATH:/usr/local/go/bin
+`````
+
 
 ### 安装
 
@@ -44,41 +49,74 @@ IPFS_PATH=~/.ipfs2 ipfs init
 ## 第三步 创建私有网络
 
 安装 git
-`sudo apt-get install git`
+
+`````
+sudo apt-get install git
+`````
 
 下载私有网络钥匙生成工具`ipfs-swarm-key-gen`
-`go get -u github.com/Kubuxu/go-ipfs-swarm-key-gen/ipfs-swarm-key-gen`
+
+`````
+go get -u github.com/Kubuxu/go-ipfs-swarm-key-gen/ipfs-swarm-key-gen
+``````
 
 生成私网钥匙
-`./go/bin/ipfs-swarm-key-gen > ~/.ipfs/swarm.key`
+
+`````
+./go/bin/ipfs-swarm-key-gen > ~/.ipfs/swarm.key
+``````
 
 将私网钥匙复制到其他节点上。如果是同服务器上，可以用下面的指令。
-`cp ~/.ipfs/swarm.key ~/.ipfs2/swarm.key`
+
+``````
+cp ~/.ipfs/swarm.key ~/.ipfs2/swarm.key
+``````
 
 ## 第四步 生成私网引导节点bootstrap
 
 把自带的bootstrap信息去掉。
-`IPFS_PATH=~/.ipfs ipfs bootstrap rm --all`
+
+``````
+IPFS_PATH=~/.ipfs ipfs bootstrap rm --all
+``````
 
 显示节点配置
-`IPFS_PATH=~/.ipfs ipfs config show`
+
+``````
+IPFS_PATH=~/.ipfs ipfs config show
+``````
 
 显示节点peer
-`IPFS_PATH=~/.ipfs ipfs config show | grep "PeerID"`
+
+``````
+IPFS_PATH=~/.ipfs ipfs config show | grep "PeerID"
+``````
 
 在`IPFS_PATH=~/.ipfs2`上加上新的bootstrap节点
-`IPFS_PATH=~/.ipfs2 ipfs bootstrap add /ip4/<ip address of bootnode>/tcp/4001/ipfs/<peer identity hash of bootnode>`
+
+``````
+IPFS_PATH=~/.ipfs2 ipfs bootstrap add /ip4/<ip address of bootnode>/tcp/4001/ipfs/<peer identity hash of bootnode>
+``````
 
 实际操作
-`IPFS_PATH=~/.ipfs2 ipfs bootstrap add /ip4/127.0.0.1/tcp/4000/ipfs/QmQBBwHr8fShxZmNG91rfnurdkbW37Qpez6PaNfhhbbS3T`
+
+``````
+IPFS_PATH=~/.ipfs2 ipfs bootstrap add /ip4/127.0.0.1/tcp/4000/ipfs/QmQBBwHr8fShxZmNG91rfnurdkbW37Qpez6PaNfhhbbS3T
+``````
 
 ## 第五步 启动网络
 
 强迫节点只能连接私网
-`export LIBP2P_FORCE_PNET=1`
+
+``````
+export LIBP2P_FORCE_PNET=1
+``````
 
 启动节点
-`IPFS_PATH=~/.ipfs ipfs daemon &`
+
+``````
+IPFS_PATH=~/.ipfs ipfs daemon &
+``````
 
 如果看到这个，表示运行成功。
 ```
