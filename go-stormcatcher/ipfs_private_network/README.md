@@ -13,7 +13,7 @@ IPFS的下载和安装可以看这里 [https://golang.org/doc/install](https://g
 [下载安装包](https://golang.org/dl/)以后，解压到`/usr/local`中
 
 `````
-sudo tar -C /usr/local -xzf go1.11.4.linux-amd64.tar.gz`
+tar xvfz go1.11.4.linux-amd64.tar.gz`
 `````
 
 然后生成一个GOPATH `/usr/local/go/bin
