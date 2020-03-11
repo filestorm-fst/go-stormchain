@@ -472,12 +472,15 @@ func (s *Filestorm) StartMining(threads int) error {
 			}
 			clique.Authorize(eb, wallet.SignData)
 		}
+		// Check if PBFT consensus is used. Only one consensus can be used.
 		if pbft, ok := s.engine.(*pbft.Pbft); ok {
+			// find the local mining address and create a wallet.
 			wallet, err := s.accountManager.Find(accounts.Account{Address: eb})
 			if wallet == nil || err != nil {
 				log.Error("Stormbase account unavailable locally", "err", err)
 				return fmt.Errorf("signer missing: %v", err)
 			}
+			// if PBFT consensus is selected, authorized the local mining address to sign.
 			pbft.Authorize(eb, wallet.SignData)
 		}
 		// If mining is started, we can disable the transaction rejection mechanism
