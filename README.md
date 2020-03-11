@@ -13,10 +13,10 @@ go-stormchain is a blockchain technology that implements a multichain ecosystem 
 
 下载运行程序 storm （选择正确的操作系统）
 
-* Linux: [storm-linux](https://github.com/filestorm-fst/go-stormchain/blob/master/storm-linux)
-* Mac Os: [storm-os](https://github.com/filestorm-fst/go-stormchain/blob/master/storm-os)
+Download the latest executables for your operating system from [releases](https://github.com/filestorm-fst/go-stormchain/releases).
 
-(You have to click on the link, click "View Raw" and download the file as storm-linux.dms or storm-os.dms. Rename the files to storm.)
+* Mac OS: storm-os
+* Linux: storm-linux
 
 将 storm 复制到需要安装的节点服务器上。在这个指南中，我们将使用三台装有 Ubuntu 操作系统的服务器。（Storm区块链至少需要两个节点才能运行。）在服务器上，可以建立新文件夹 storm_node 作为节点运行根目录。将执行文件 storm 存到这个目录下。(如果要在同一个服务器上跑多个节点，可以生成多个文件夹如 storm_node1, storm_node2，然后执行下面的步骤。）
 
