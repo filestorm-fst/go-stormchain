@@ -51,3 +51,5 @@ profile.cov
 # cross platform compilers
 xgo-*
 
+/vendor
+
