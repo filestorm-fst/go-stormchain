@@ -39,7 +39,7 @@ contract AppChainBase {
     string extraData;
     uint256 tokenTotal;
 
-    uint256 public FOUNDATION_MOAC_REQUIRED_AMOUNT = 500 * 10 ** 18;
+    uint256 public FOUNDATION_MOAC_REQUIRED_AMOUNT = 5 * 10 ** 17;
     uint256 public FLUSH_AMOUNT = 5 * 10 ** 16;
     address public FOUNDATION_BLACK_HOLE_ADDRESS = 0x48328afC8dd45C1C252E7E883fc89bd17ddEe7c0;
 
