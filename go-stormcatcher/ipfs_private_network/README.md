@@ -8,12 +8,12 @@ FileStorm底层使用IPFS协议做文件存储，在此基础上实现数据加�
 
 ### 下载
 
-IPFS的下载和安装可以看这里 [https://golang.org/doc/install](https://golang.org/doc/install)
+Go的下载和安装可以看这里 [https://golang.org/doc/install](https://golang.org/doc/install)
 
-[下载安装包](https://golang.org/dl/)以后，解压到`/usr/local`中
-
+下载并解压IPFS。
 `````
-tar xvfz go1.11.4.linux-amd64.tar.gz`
+wget https://dist.ipfs.io/go-ipfs/v0.4.23/go-ipfs_v0.4.23_linux-amd64.tar.gz
+tar xvfz go-ipfs_v0.4.23_linux-amd64.tar.gz
 `````
 
 然后生成一个GOPATH `/usr/local/go/bin
