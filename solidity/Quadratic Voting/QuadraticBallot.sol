@@ -30,7 +30,8 @@ contract QuadraticBallot
     event VoteCast(
       address _voter,
       uint8 _proposal,
-      uint256 _voteCount
+      uint256 _voteCount,
+      uint256 _totalCurrentVotes
     );
 
     //state variables
@@ -42,7 +43,7 @@ contract QuadraticBallot
     //array of all the proposals
     Proposal[] proposals;
     //array of all voters to divide winnings evenly
-    address payable[] allVoters;
+    address[] allVoters;
 
     constructor(uint8 _numProposals) public payable
     {
@@ -58,8 +59,9 @@ contract QuadraticBallot
                 "Sender does not have the authority to give right to vote");
 
         //make sure voter hasn't already voted
-        require(voters[toVoter].voted == false,
+        require(voters[toVoter].voted != true,
                 "This address has already placed a vote");
+
         voters[toVoter].canVote = true;
     }
 
@@ -68,8 +70,11 @@ contract QuadraticBallot
     //but you pay for it
     function sendVotesTo(address to, uint8 numOfVotes) public payable
     {
+        require(voters[to].canVote == true,
+                "To address is not allowed to vote");
+
         require(voters[msg.sender].voted == false,
-                "Sender has already placed a vote");
+                "Sender has already placed a vote or is not allowed to vote");
 
         uint256 costOfVote = numOfVotes ** 2;
 
@@ -103,7 +108,7 @@ contract QuadraticBallot
     {
         //make sure sender has not already voted
         require(voters[msg.sender].voted == false,
-                "Sender has already placed a vote");
+                "Sender has already placed a vote or is not allowed to vote");
 
         //make sure sent value is high enough
         uint256 costOfVote = numOfVotes ** 2;
@@ -123,10 +128,10 @@ contract QuadraticBallot
 
         allVoters.push(msg.sender);
 
-        emit VoteCast(msg.sender, toProposal, numOfVotes + voter.votesReceived);
+        emit VoteCast(msg.sender, toProposal, numOfVotes + voter.votesReceived, proposals[toProposal].voteCount);
     }
 
-    function winningProposal() public returns (uint8 _winningProposal) {
+    function winningProposal() public returns (uint8 _winningProposal, uint _totalVotes) {
 
         uint256 winningVoteCount = 0;
         for (uint8 prop = 0; prop < proposals.length; prop++)
@@ -142,7 +147,10 @@ contract QuadraticBallot
         uint256 amountPerVoter = address(this).balance / allVoters.length;
         for(uint8 voter = 0; voter < allVoters.length; voter++)
         {
-            allVoters[voter].transfer(amountPerVoter);
+            address payable temp = address(uint160(allVoters[voter]));
+            temp.transfer(amountPerVoter);
         }
+
+        _totalVotes = proposals[_winningProposal].voteCount;
     }
 }
