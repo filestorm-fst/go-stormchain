@@ -65,18 +65,18 @@ options 必选
 
 读文件
 ``````
-const FStormHttpClient = require('../src/index');
+const FStormHttpClient = require('js-fstorm-http-client');
 const config = require('./config');
 const path = require('path');
 const fs = require('fs');
 const FileType = require('file-type');
 
 (async function f() {
-  const fStormHttpClient = new FStormHttpClient({
-    IPFSProvider: config.IPFSProvider,
-    chainProvider: config.chainProvider,
+ const fStorm = new FStormHttpClient({
+    IPFSProvider:  'http://localhost:5001',
+    chainProvider:  'http://localhost:8645',
     chainAccount: {
-      privateKey: '4099a9cdefc9c23466bb5552e90f07292bc8c367957d389feacb737b8530dad9'
+      privateKey: ''
     },
   });
   // 001 文本(在线输出)
