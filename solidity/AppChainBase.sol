@@ -40,7 +40,7 @@ contract AppChainBase {
     uint256 tokenTotal;
 
     uint256 public FOUNDATION_MOAC_REQUIRED_AMOUNT = 10 * 10 ** 18;
-    uint256 public FLUSH_AMOUNT = 1 * 10 ** 17;
+    uint256 public FLUSH_AMOUNT = 5 * 10 ** 16;
     address public FOUNDATION_BLACK_HOLE_ADDRESS = 0x48328afc8dd45c1c252e7e883fc89bd17ddee7c0;
 
     // construct a chain with no token
@@ -73,23 +73,25 @@ contract AppChainBase {
         tokenTotal = totalSupply; 
 
         admins[msg.sender] = 1;
-        
-        // OPTIONAL: Give some gas fee to initial validators.
-        // uint256 GAS_FEE = 2 * 10 ** 14;
-        // uint256 gasNeededEach = balance / FLUSH_AMOUNT * GAS_FEE / initial_validators.length;
-        // uint256 gasNeededTotal = gasNeededEach * initial_validators.length;
-        // for (i=0; i<initial_validators.length; i++){
-        //     initial_validators[i].transfer(gasNeededEach);
-        // }
-        // End of Option
+
     }
 
-    function updateChainName(string name) {
+    function distributeGasFee() public {
+        require(admins[msg.sender] == 1, "Only Admins Can Distribute Gas Fee.");
+
+        uint256 flushId = 0;
+        uint256 GAS_FEE = 1 * 10 ** 17;
+        for (uint256 i=0; i<flushValidatorList[flushId].length; i++){
+            flushValidatorList[flushId][i].transfer(GAS_FEE);
+        }
+    }
+
+    function updateChainName(string name) public {
         require(admins[msg.sender] == 1, "Only Admins Can Update Chain Name.");
         chainName = name;
     }
 
-    function updateFlushEpoch(uint256 newEpoch) {
+    function updateFlushEpoch(uint256 newEpoch) public {
         require(admins[msg.sender] == 1, "Only Admins Can Update Flush Epoch.");
         require(newEpoch >= 360, "Flush Epoch Must be Equal to or Greater than 360.");
         flushEpoch = newEpoch;
@@ -126,9 +128,8 @@ contract AppChainBase {
 
         uint256 flushId = flushList.length-1;
         for (uint i=0; i<flushValidatorList[flushId].length; i++){
-            if ((flushValidatorList[flushId][i]==msg.sender ||
-                admins[msg.sender] == 1 ) &&
-                lastFlushedBlock + flushEpoch == blockNumber){
+            if (flushValidatorList[flushId][i]==msg.sender ||
+                admins[msg.sender] == 1 ){
 
                 flushId++;
                 flushMapping[flushId].flushId = flushId;
