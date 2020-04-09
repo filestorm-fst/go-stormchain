@@ -60,6 +60,7 @@ $ echo 'password' > password.txt
   --totalSupply 20000 \
   --flushEpoch 360 \
   --initValidators "14723A09ACff6D2A60DcdF7aA4AFf308FDDC160C,4B0897b0513fdC7C541B6d9D7E929C4e5364D2dB" \
+  --nodeIp "gateway.moac.io/testnet"
   init
 
 ```````````````````````
@@ -72,6 +73,10 @@ $ echo 'password' > password.txt
 * flushEpoch 刷新周期。
 
 * initValidators 创世验证人列表，逗号分开。
+
+* nodeIp - 墨客节点地址（可选）
+
+你会被要求输入密码。等待一到两分钟后，创建成功。
 
 这时，同目录下会生成一个这样的文件： 1583305010522115000.json。这就是你的创世文件
 
