@@ -86,6 +86,10 @@ contract AppChainBase {
         }
     }
 
+    function () payable {
+        balance += msg.value;
+    }
+
     function updateChainName(string name) public {
         require(admins[msg.sender] == 1, "Only Admins Can Update Chain Name.");
         chainName = name;
