@@ -169,6 +169,10 @@ var (
 		Name:  "nodeIp",
 		Usage: `node's ip`,
 	}
+	VsFlag = cli.StringFlag{
+		Name:  "vsFlag",
+		Usage: `mainchain or subchain flag`,
+	}
 	ContractAddressFlag = cli.StringFlag{
 		Name:  "contractAddress",
 		Usage: `Contract address`,
@@ -929,6 +933,14 @@ func setContractAddress(ctx *cli.Context, cfg *node.Config) {
 	}
 }
 
+//TODO
+func setVsFlag(ctx *cli.Context, cfg *node.Config) {
+	if ctx.GlobalIsSet(VsFlag.Name) {
+		cfg.VsFlag = ctx.GlobalString(VsFlag.Name)
+		node.DefaultConfig.VsFlag = ctx.GlobalString(VsFlag.Name)
+	}
+}
+
 // setNAT creates a port mapper from command line flags.
 func setNAT(ctx *cli.Context, cfg *p2p.Config) {
 	if ctx.GlobalIsSet(NATFlag.Name) {
@@ -1229,6 +1241,8 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	setNodeIp(ctx,cfg)
 	//TODO
 	setContractAddress(ctx,cfg)
+	//TODO
+	setVsFlag(ctx,cfg)
 
 	if ctx.GlobalIsSet(ExternalSignerFlag.Name) {
 		cfg.ExternalSigner = ctx.GlobalString(ExternalSignerFlag.Name)

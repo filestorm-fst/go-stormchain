@@ -1,8 +1,0 @@
-{
-    "ShowToPublic": true,
-    "VnodeServiceCfg": ":50062",
-    "SCSservice": true,
-    "VnodeBeneficialAddress" : "0x71bef1a57901d4c73de7683edb830f0b9914311a",
-    "VnodeIp": "0.0.0.0",
-    "ForceSubnetP2P": []
-}

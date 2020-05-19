@@ -20,8 +20,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/filestorm/go-filestorm/moac/chain3go"
-	"github.com/filestorm/go-filestorm/moac/moac-vnode/mcclient"
+	"github.com/filestorm/go-filestorm/flush"
+	"github.com/filestorm/go-filestorm/fstclient"
 	"github.com/filestorm/go-filestorm/params"
 	"io/ioutil"
 	"math/big"
@@ -43,7 +43,6 @@ import (
 	"github.com/filestorm/go-filestorm/event"
 	"github.com/filestorm/go-filestorm/fst/downloader"
 	"github.com/filestorm/go-filestorm/log"
-	common2 "github.com/filestorm/go-filestorm/moac/moac-lib/common"
 	"github.com/filestorm/go-filestorm/trie"
 	"gopkg.in/urfave/cli.v1"
 )
@@ -204,10 +203,7 @@ func initGenesis(ctx *cli.Context) error {
 	parentContext := ctx.Parent()
 	stack := makeFullNode(ctx)
 	nodeIp := parentContext.String("nodeIp")
-	client, err := mcclient.Dial("http://"+nodeIp)
-	if err != nil {
-		utils.Fatalf("nodeIp connect error ,nodeIp: %s", nodeIp)
-	}
+	vsFlag := parentContext.String("vsFlag")
 
 	// Make sure we have a valid genesis JSON
 	genesisPath := ctx.Args().First()
@@ -242,12 +238,12 @@ func initGenesis(ctx *cli.Context) error {
 		}
 
 		var signers []common.Address
-		var initialValidators []common2.Address
+		var initialValidators []common.Address
 		validators := strings.Split(initValidators,",")
 		for _,v := range validators{
 			address := common.HexToAddress(v)
 			signers = append(signers, address)
-			validator := common2.HexToAddress(v)
+			validator := common.HexToAddress(v)
 			initialValidators = append(initialValidators,validator)
 		}
 		if len(signers) <= 0 {
@@ -298,58 +294,66 @@ func initGenesis(ctx *cli.Context) error {
 
 		fmt.Println("Genesis file has been created: " + genesisPath)
 
-		wallets := stack.AccountManager().Wallets()
-		keystorePath := wallets[0].URL()
-		file, err := os.Open(keystorePath.Path)
-		if err != nil {
-			utils.Fatalf("Can't open coinbase keystore file.")
-		}
-		defer file.Close()
-
-		keystore, err := ioutil.ReadAll(file)
-		if err != nil {
-			utils.Fatalf("Can't open coinbase keystore file.")
-		}
-
-		fmt.Printf("Please enter the password")
-		fmt.Println()
-		password, err := console.Stdin.PromptPassword(">")
-		if err != nil {
-			utils.Fatalf("Failed to read password: %v", err)
-		}
-		fmt.Println()
-
-		contract, tx, err := chain3go.ClientDeployContract(client , string(keystore) , password, "",genesis.Config.ChainID,big.NewInt(int64(genesis.Config.Pbft.Period)), big.NewInt(int64(genesis.Config.Pbft.FlushEpoch)),initialValidators,big.NewInt(int64(totalSupply)))
-		if err != nil {
-			utils.Fatalf("Client Deploy Contract error", err)
-		}
-		fmt.Printf("\nwait for AppChainBase depolyed...(60 second)\n\n")
-		time.Sleep(time.Duration(60)*time.Second)
-		fmt.Printf("\nYour contract has depolyed\n\n")
-		fmt.Printf("Contract address is:   %s\n", contract)
-		fmt.Printf("Transaction hash is: %s\n", tx)
-
-		for {
-			txHash, err := chain3go.DistributeGasFee(client, string(keystore), password, contract)
+		if strings.EqualFold(vsFlag,"false") {
+			client, err := fstclient.Dial("http://"+nodeIp)
 			if err != nil {
-				fmt.Printf("\nwait for AppChainBase DistributeGasFee...\n\n")
-				time.Sleep(time.Duration(10)*time.Second)
-			}else {
-				fmt.Printf("\nAppChainBase DistributeGasFee success，Transaction hash is:%s\n\n", txHash)
-				break
+				utils.Fatalf("nodeIp connect error ,nodeIp: %s", nodeIp)
+			}
+
+			wallets := stack.AccountManager().Wallets()
+			keystorePath := wallets[0].URL()
+			file, err := os.Open(keystorePath.Path)
+			if err != nil {
+				utils.Fatalf("Can't open coinbase keystore file.")
+			}
+			defer file.Close()
+
+			keystore, err := ioutil.ReadAll(file)
+			if err != nil {
+				utils.Fatalf("Can't open coinbase keystore file.")
+			}
+
+			fmt.Printf("Please enter the password")
+			fmt.Println()
+			password, err := console.Stdin.PromptPassword(">")
+			if err != nil {
+				utils.Fatalf("Failed to read password: %v", err)
+			}
+			fmt.Println()
+
+			contract, tx, err := flush.ClientDeployContract(client , string(keystore) , password, "",genesis.Config.ChainID,big.NewInt(int64(genesis.Config.Pbft.Period)), big.NewInt(int64(genesis.Config.Pbft.FlushEpoch)),initialValidators,big.NewInt(int64(totalSupply)))
+			if err != nil {
+				utils.Fatalf("Client Deploy Contract error", err)
+			}
+			fmt.Printf("\nwait for AppChainBase depolyed...(60 second)\n\n")
+			time.Sleep(time.Duration(60)*time.Second)
+			fmt.Printf("\nYour contract has depolyed\n\n")
+			fmt.Printf("Contract address is:   %s\n", contract)
+			fmt.Printf("Transaction hash is: %s\n", tx)
+
+			for {
+				txHash, err := flush.DistributeGasFee(client, string(keystore), password, contract)
+				if err != nil {
+					fmt.Printf("\nwait for AppChainBase DistributeGasFee...\n\n")
+					time.Sleep(time.Duration(10)*time.Second)
+				}else {
+					fmt.Printf("\nAppChainBase DistributeGasFee success，Transaction hash is:%s\n\n", txHash)
+					break
+				}
+			}
+			time.Sleep(time.Duration(10)*time.Second)
+			for {
+				txHash, err := flush.AddFund(client, string(keystore), password, contract)
+				if err != nil {
+					fmt.Printf("\nwait for AppChainBase AddFund...\n\n")
+					time.Sleep(time.Duration(10)*time.Second)
+				}else {
+					fmt.Printf("\nAppChainBase AddFund success，Transaction hash is:%s\n\n", txHash)
+					break
+				}
 			}
 		}
-		time.Sleep(time.Duration(10)*time.Second)
-		for {
-			txHash, err := chain3go.AddFund(client, string(keystore), password, contract)
-			if err != nil {
-				fmt.Printf("\nwait for AppChainBase AddFund...\n\n")
-				time.Sleep(time.Duration(10)*time.Second)
-			}else {
-				fmt.Printf("\nAppChainBase AddFund success，Transaction hash is:%s\n\n", txHash)
-				break
-			}
-		}
+
 	}else {
 		file, err := os.Open(genesisPath)
 		if err != nil {

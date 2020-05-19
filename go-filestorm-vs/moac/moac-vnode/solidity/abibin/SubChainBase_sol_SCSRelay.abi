@@ -1,1 +1,0 @@
-[{"constant":false,"inputs":[{"name":"cnt","type":"address"},{"name":"msgtype","type":"uint256"}],"name":"notifySCS","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}]

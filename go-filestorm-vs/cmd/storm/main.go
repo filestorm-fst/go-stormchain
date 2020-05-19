@@ -59,6 +59,7 @@ var (
 	// flags that configure the node
 	nodeFlags = []cli.Flag{
 		utils.BlockSecFlag,
+		utils.VsFlag,
 		utils.ContractAddressFlag,
 		utils.FlushEpochFlag,
 		utils.NodeIpFlag,

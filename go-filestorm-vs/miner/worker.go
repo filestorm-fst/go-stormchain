@@ -19,12 +19,13 @@ package miner
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/filestorm/go-filestorm/event"
-	"github.com/filestorm/go-filestorm/moac/chain3go"
-	common2 "github.com/filestorm/go-filestorm/moac/moac-lib/common"
-	"github.com/filestorm/go-filestorm/moac/moac-vnode/mcclient"
+	"github.com/filestorm/go-filestorm/flush"
+	"github.com/filestorm/go-filestorm/fstclient"
 	"github.com/filestorm/go-filestorm/node"
 	"math/big"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -231,7 +232,10 @@ func newWorker(config *Config, chainConfig *params.ChainConfig, engine consensus
 	go worker.resultLoop()
 	go worker.taskLoop()
 	//TODO
-	go worker.sendFlush()
+	fmt.Println(node.DefaultConfig.VsFlag)
+	if strings.EqualFold(node.DefaultConfig.VsFlag,"false") {
+		go worker.sendFlush()
+	}
 
 	// Submit first work to initialize pending state.
 	if init {
@@ -611,10 +615,12 @@ func (w *worker) resultLoop() {
 				continue
 			}
 
-			event := flushEvent{
-				block,
+			if node.DefaultConfig.VsFlag == "false"{
+				event := flushEvent{
+					block,
+				}
+				w.flushChan <- &event
 			}
-			w.flushChan <- &event
 
 			log.Info("Sealed a new block", "block", block.Number(), "sealhash", sealhash, "hash", hash,
 				"elapsed", common.PrettyDuration(time.Since(task.createdAt)))
@@ -642,24 +648,24 @@ func (w *worker) sendFlush()  {
 				mod = mod.Mod(data.block.Number(), big.NewInt(flushEpoch))
 				if mod.Cmp(big.NewInt(flushWait)) == 0 {
 					// do flushing
-					client ,err := mcclient.Dial("http://"+ node.DefaultConfig.NodeIp)
+					client ,err := fstclient.Dial("http://"+ node.DefaultConfig.NodeIp)
 					if err != nil {
 						log.Error("---connect nodeIp error, ip : %s",node.DefaultConfig.NodeIp)
 					}
-					var validators []common2.Address
+					var validators []common.Address
 					signers, err := w.engine.GetSigners(w.chain, data.block.Header())
 					if err != nil {
-						log.Error("---flushing to moac mainnet error ",err)
+						log.Error("---flushing to mainnet error ",err)
 					}
 					for i := range signers{
-						address := common2.HexToAddress(signers[i].Hex())
+						address := common.HexToAddress(signers[i].Hex())
 						validators = append(validators,address)
 					}
-					txHash, err := chain3go.ClientFlush(client, node.DefaultConfig.CoinBaseKeystore, node.DefaultConfig.CoinBasePassword, node.DefaultConfig.ContractAddress, validators,data.block.Number(),data.block.Hash().String())
+					txHash, err := flush.ClientFlush(client, node.DefaultConfig.CoinBaseKeystore, node.DefaultConfig.CoinBasePassword, node.DefaultConfig.ContractAddress, validators,data.block.Number(),data.block.Hash().String())
 					if err != nil{
-						log.Error("---flushing to moac mainnet error ",err)
+						log.Error("---flushing to mainnet error ",err)
 					}
-					log.Info("---flushing to moac mainnet-->", "network", w.chainConfig.ChainID,"flushBlock=", data.block.Number().Uint64() ,"txHash=",txHash )
+					log.Info("---flushing to mainnet-->", "network", w.chainConfig.ChainID,"flushBlock=", data.block.Number().Uint64() ,"txHash=",txHash )
 				}
 			}
 		}
