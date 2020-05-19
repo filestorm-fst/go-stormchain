@@ -1,0 +1,33 @@
+部署MOAC节点流程：
+
+1. 测试服务器
+登陆： moac / moac@2017
+t1: 107.155.106.71
+t2: 107.155.102.249
+t3: 23.92.71.88
+
+2. 编译服务器
+144.168.43.133
+登陆： moac / moac@2017;
+
+3. 编译
+在编译服务器上面，folder  ~go/src/github.com/filestorm/go-filestorm/moac/MoacCore
+执行 go run build/ci.go install ./cmd/moac
+编译好的moac在目录 build/bin下面
+
+4. 将moac拷贝到其他三台服务器上面 t1，t2,t3
+调用deploy/cpmoac.sh
+
+5. 在测试服务器上测试
+参考 http://www.jitsejan.nl/setting-up-private-ethereum-blockchain.html
+1） 创建gensis.json
+2） moac init genesis.json
+3) copy nodekey to ~/.moaccore/moac
+   nodekey-t1,-t2,-t3 in t1,t2,t3 server, 
+4) start one of the server
+   moac --networkid 20170715 console
+   miner.start()
+5) 等到启动后过了block 10 之后启动其他的server
+   moac --networkid 20170715 console
+
+

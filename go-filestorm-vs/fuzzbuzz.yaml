@@ -1,0 +1,36 @@
+# bmt  keystore  rlp  trie  whisperv6
+
+base: ubuntu:16.04
+targets:
+  - name: rlp
+    language: go
+    version: "1.13"
+    corpus: ./fuzzers/rlp/corpus
+    harness:
+      function: Fuzz
+      package: github.com/filestorm/go-filestorm/tests/fuzzers/rlp
+      checkout: github.com/filestorm/go-filestorm/
+  - name: keystore
+    language: go
+    version: "1.13"
+    corpus: ./fuzzers/keystore/corpus
+    harness:
+      function: Fuzz
+      package: github.com/filestorm/go-filestorm/tests/fuzzers/keystore
+      checkout: github.com/filestorm/go-filestorm/
+  - name: trie
+    language: go
+    version: "1.13"
+    corpus: ./fuzzers/trie/corpus
+    harness:
+      function: Fuzz
+      package: github.com/filestorm/go-filestorm/tests/fuzzers/trie
+      checkout: github.com/filestorm/go-filestorm/
+  - name: whisperv6
+    language: go
+    version: "1.13"
+    corpus: ./fuzzers/whisperv6/corpus
+    harness:
+      function: Fuzz
+      package: github.com/filestorm/go-filestorm/tests/fuzzers/whisperv6
+      checkout: github.com/filestorm/go-filestorm/

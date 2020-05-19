@@ -1,0 +1,14 @@
+墨客solidity的开发人员应该遵守solidity官方给出的代码风格建议:
+https://solidity.readthedocs.io/en/v0.3.1/style-guide.html
+
+以下是MOAC项目额外的代码风格建议：
+1. 代码行长度限制: 120
+2. 合约内部成员函数声明顺序:
+    1. constructor函数
+    1. fallback函数
+    2. public函数
+    3. private函数
+
+代码风格检查应该由编辑器自动完成。您应该在您常用的编辑器上安装solidity代码静态检查工具插件（linting）
+1. Visual Studio Code: Solhint, Solium
+2. Atom: etheratom, linter-solidity

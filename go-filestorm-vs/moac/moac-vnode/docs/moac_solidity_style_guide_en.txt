@@ -1,0 +1,15 @@
+Solidity developers for MOAC should in general follow the style-guide provided by the solidity language doc.
+It can be found here:
+https://solidity.readthedocs.io/en/v0.3.1/style-guide.html
+
+Topics that are not covered in the above guide:
+1. Max line length: 120
+2. Contract's member function should be declared in the following order:
+    1. constructor function
+    1. fallback functions
+    2. public functions
+    3. private functions
+
+Code style should be enforced by editor. You can install various linting extensions to your editor.
+1. Visual Studio Code: Solhint, Solium
+2. Atom: etheratom, linter-solidity
