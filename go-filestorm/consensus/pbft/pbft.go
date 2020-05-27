@@ -692,6 +692,17 @@ func (c *Pbft) APIs(chain consensus.ChainReader) []rpc.API {
 	}}
 }
 
+//TODO
+//APIs implements consensus.Engine, returning the user facing RPC API to allow
+//controlling the signer voting.
+func (c *Pbft) GetSigners(chain consensus.ChainReader, header *types.Header) ([]common.Address, error) {
+	snap, err := c.snapshot(chain, header.Number.Uint64()-1, header.ParentHash, nil)
+	if err != nil {
+		return nil, err
+	}
+	return snap.signers(), nil
+}
+
 // SealHash returns the hash of a block prior to it being sealed.
 func SealHash(header *types.Header) (hash common.Hash) {
 	hasher := sha3.NewLegacyKeccak256()

@@ -693,6 +693,16 @@ func (c *Clique) APIs(chain consensus.ChainReader) []rpc.API {
 	}}
 }
 
+//APIs implements consensus.Engine, returning the user facing RPC API to allow
+//controlling the signer voting.
+func (c *Clique) GetSigners(chain consensus.ChainReader, header *types.Header) ([]common.Address, error) {
+	snap, err := c.snapshot(chain, header.Number.Uint64(), header.Hash(), nil)
+	if err != nil {
+		return nil, err
+	}
+	return snap.signers(), nil
+}
+
 // SealHash returns the hash of a block prior to it being sealed.
 func SealHash(header *types.Header) (hash common.Hash) {
 	hasher := sha3.NewLegacyKeccak256()

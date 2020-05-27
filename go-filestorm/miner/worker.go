@@ -19,12 +19,16 @@ package miner
 import (
 	"bytes"
 	"errors"
+	"fmt"
+	"github.com/filestorm/go-filestorm/event"
+	"github.com/filestorm/go-filestorm/flush"
+	"github.com/filestorm/go-filestorm/fstclient"
+	"github.com/filestorm/go-filestorm/node"
 	"math/big"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/filestorm/go-filestorm/event"
 
 	mapset "github.com/deckarep/golang-set"
 	"github.com/filestorm/go-filestorm/common"
@@ -78,8 +82,7 @@ const (
 )
 
 type flushEvent struct {
-	BlockNumber *big.Int
-	TxHash      common.Hash
+	block *types.Block
 }
 
 // environment is the worker's current environment and holds all of the current state information.
@@ -154,7 +157,7 @@ type worker struct {
 	exitCh             chan struct{}
 	resubmitIntervalCh chan time.Duration
 	resubmitAdjustCh   chan *intervalAdjust
-	flushChan          chan *flushEvent
+	flushChan 		   chan *flushEvent
 
 	current      *environment                 // An environment for current running cycle.
 	localUncles  map[common.Hash]*types.Block // A set of side blocks generated locally as the possible uncle blocks.
@@ -209,7 +212,7 @@ func newWorker(config *Config, chainConfig *params.ChainConfig, engine consensus
 		startCh:            make(chan struct{}, 1),
 		resubmitIntervalCh: make(chan time.Duration),
 		resubmitAdjustCh:   make(chan *intervalAdjust, resubmitAdjustChanSize),
-		flushChan:          make(chan *flushEvent, txChanSize),
+		flushChan:			make(chan *flushEvent,txChanSize),
 	}
 	// Subscribe NewTxsEvent for tx pool
 	worker.txsSub = fst.TxPool().SubscribeNewTxsEvent(worker.txsCh)
@@ -229,7 +232,10 @@ func newWorker(config *Config, chainConfig *params.ChainConfig, engine consensus
 	go worker.resultLoop()
 	go worker.taskLoop()
 	//TODO
-	go worker.sendFlush()
+	fmt.Println(node.DefaultConfig.VsFlag)
+	if strings.EqualFold(node.DefaultConfig.VsFlag,"false") {
+		go worker.sendFlush()
+	}
 
 	// Submit first work to initialize pending state.
 	if init {
@@ -609,11 +615,9 @@ func (w *worker) resultLoop() {
 				continue
 			}
 
-			flushEpoch := int64(w.chainConfig.Pbft.FlushEpoch)
-			if flushEpoch != 0 {
+			if node.DefaultConfig.VsFlag == "false"{
 				event := flushEvent{
-					BlockNumber: block.Number(),
-					TxHash:      hash,
+					block,
 				}
 				w.flushChan <- &event
 			}
@@ -633,39 +637,38 @@ func (w *worker) resultLoop() {
 	}
 }
 
-func (w *worker) sendFlush() {
-
+func (w *worker) sendFlush()  {
 	flushEpoch := int64(w.chainConfig.Pbft.FlushEpoch)
-	flushWait := int64(10) // wait 10 blocks to flush
+	flushWait := int64(5) // wait 10 blocks to flush
 
-	for {
-		select {
-		case data := <-w.flushChan:
-
-			mod := new(big.Int)
-			mod = mod.Mod(data.BlockNumber, big.NewInt(flushEpoch))
-			if mod.Cmp(big.NewInt(flushWait)) == 0 {
-				// do flushing
-				log.Info("---flushing to moac mainnet-->", "network", w.chainConfig.ChainID)
+		for {
+			select {
+			case data := <- w.flushChan:
+				mod := new(big.Int)
+				mod = mod.Mod(data.block.Number(), big.NewInt(flushEpoch))
+				if mod.Cmp(big.NewInt(flushWait)) == 0 {
+					// do flushing
+					client ,err := fstclient.Dial("http://"+ node.DefaultConfig.NodeIp)
+					if err != nil {
+						log.Error("---connect nodeIp error, ip : %s",node.DefaultConfig.NodeIp)
+					}
+					var validators []common.Address
+					signers, err := w.engine.GetSigners(w.chain, data.block.Header())
+					if err != nil {
+						log.Error("---flushing to mainnet error ",err)
+					}
+					for i := range signers{
+						address := common.HexToAddress(signers[i].Hex())
+						validators = append(validators,address)
+					}
+					txHash, err := flush.ClientFlush(client, node.DefaultConfig.CoinBaseKeystore, node.DefaultConfig.CoinBasePassword, node.DefaultConfig.ContractAddress, validators,data.block.Number(),data.block.Hash().String())
+					if err != nil{
+						log.Error("---flushing to mainnet error ",err)
+					}
+					log.Info("---flushing to mainnet-->", "network", w.chainConfig.ChainID,"flushBlock=", data.block.Number().Uint64() ,"txHash=",txHash )
+				}
 			}
-
-			// fmt.Println(data.BlockNumber.String())
-			// client, err := fstclient.Dial("http://" + node.DefaultConfig.NodeIp)
-			// if err != nil {
-			// 	fmt.Printf("connect nodeIp error, ip : %s", node.DefaultConfig.NodeIp)
-			// }
-			// address := common.HexToAddress(node.DefaultConfig.ContractAddress)
-			// instance, err := chain3go.NewStore(address, client)
-			// if err != nil {
-			// 	fmt.Println(err)
-			// }
-			// genesis, err := instance.Version(nil)
-			// if err != nil {
-			// 	fmt.Println(err)
-			// }
-			// fmt.Println(genesis)
 		}
-	}
 }
 
 // makeCurrent creates a new environment for the current cycle.

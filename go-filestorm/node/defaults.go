@@ -43,8 +43,11 @@ var DefaultConfig = Config{
 	DataDir:             DefaultDataDir(),
 	//TODO
 	NodeIp:				 DefaultClientNodeIp,
-	ContractAddress:	 "",
 	HTTPPort:            DefaultHTTPPort,
+	CoinBaseKeystore:	 "",
+	ContractAddress:	 "",
+	CoinBasePassword:	 "",
+	VsFlag:	 			 "true",
 	HTTPModules:         []string{"net", "web3"},
 	HTTPVirtualHosts:    []string{"localhost"},
 	HTTPTimeouts:        rpc.DefaultHTTPTimeouts,

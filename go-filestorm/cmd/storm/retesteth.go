@@ -268,6 +268,10 @@ func (e *NoRewardEngine) APIs(chain consensus.ChainReader) []rpc.API {
 	return e.inner.APIs(chain)
 }
 
+func (e *NoRewardEngine) GetSigners(chain consensus.ChainReader, header *types.Header) ([]common.Address, error) {
+	return e.inner.GetSigners(chain, header)
+}
+
 func (e *NoRewardEngine) Close() error {
 	return e.inner.Close()
 }

@@ -32,6 +32,7 @@ import (
 	"github.com/filestorm/go-filestorm/log"
 	"github.com/filestorm/go-filestorm/metrics"
 	"github.com/filestorm/go-filestorm/node"
+	"io/ioutil"
 	"math"
 	"os"
 	"runtime"
@@ -58,12 +59,14 @@ var (
 	// flags that configure the node
 	nodeFlags = []cli.Flag{
 		utils.BlockSecFlag,
+		utils.VsFlag,
 		utils.ContractAddressFlag,
 		utils.FlushEpochFlag,
-		utils.ConnectTypeFlag,
-		utils.ConnectIpFlag,
+		utils.NodeIpFlag,
+		utils.PrivateKeyFlag,
 		utils.InitValidatorsFlag,
 		utils.TotalSupplyFlag,
+		utils.NetWorkIdFlag,
 		utils.IdentityFlag,
 		utils.UnlockedAccountFlag,
 		utils.PasswordFileFlag,
@@ -461,6 +464,23 @@ func unlockAccounts(ctx *cli.Context, stack *node.Node) {
 	}
 	ks := stack.AccountManager().Backends(keystore.KeyStoreType)[0].(*keystore.KeyStore)
 	passwords := utils.MakePasswordList(ctx)
+	//todo
+	node.DefaultConfig.CoinBasePassword = passwords[0]
+
+	wallets := stack.AccountManager().Wallets()
+	keystorePath := wallets[0].URL()
+	file, err := os.Open(keystorePath.Path)
+	if err != nil {
+		utils.Fatalf("Can't open coinbase keystore file.")
+	}
+	defer file.Close()
+
+	keystore, err := ioutil.ReadAll(file)
+	if err != nil {
+		utils.Fatalf("Can't open coinbase keystore file.")
+	}
+	node.DefaultConfig.CoinBaseKeystore = string(keystore)
+
 	for i, account := range unlocks {
 		unlockAccount(ks, account, i, passwords)
 	}

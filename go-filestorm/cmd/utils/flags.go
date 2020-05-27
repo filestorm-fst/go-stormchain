@@ -146,40 +146,41 @@ var (
 	}
 	BlockSecFlag = cli.Uint64Flag{
 		Name:  "blockSec",
-		Usage: "Block time (Unit of second)",
-		Value: 10,
+		Usage: "Block rate (Unit of second)",
+		Value: 15,
 	}
 	FlushEpochFlag = cli.Uint64Flag{
 		Name:  "flushEpoch",
-		Usage: "Number of blocks in one flush interval",
-		Value: 360,
+		Usage: "Number of blocks in one flash interval",
+	}
+	NetWorkIdFlag = cli.Uint64Flag{
+		Name:  "netWorkId",
+		Usage: "Number of blocks in one flash interval",
 	}
 	InitValidatorsFlag = cli.StringFlag{
 		Name:  "initValidators",
-		Usage: `List of initial authorized validators`,
+		Usage: `List of initial authorized nodes`,
 	}
 	TotalSupplyFlag = cli.Uint64Flag{
 		Name:  "totalSupply",
-		Usage: "Total tokens issued",
-		Value: 0,
+		Usage: "Token exchange ratio",
 	}
-	ConnectTypeFlag = cli.StringFlag{
-		Name:  "connectType",
-		Usage: `Connect type - Ethereum, Moac, Storm`,
-		Value: "Storm",
+	NodeIpFlag = cli.StringFlag{
+		Name:  "nodeIp",
+		Usage: `node's ip`,
 	}
-	ConnectIpFlag = cli.StringFlag{
-		Name:  "connectIp",
-		Usage: `connect's ip`,
+	VsFlag = cli.StringFlag{
+		Name:  "vsFlag",
+		Usage: `mainchain or subchain flag`,
 	}
 	ContractAddressFlag = cli.StringFlag{
 		Name:  "contractAddress",
 		Usage: `Contract address`,
 	}
-	// PrivateKeyFlag = cli.StringFlag{
-	// 	Name:  "privateKey",
-	// 	Usage: `Private contract for initializing the chain`,
-	// }
+	PrivateKeyFlag = cli.StringFlag{
+		Name:  "privateKey",
+		Usage: `Private contract for initializing the chain`,
+	}
 	AncientFlag = DirectoryFlag{
 		Name:  "datadir.ancient",
 		Usage: "Data directory for ancient chain segments (default = inside chaindata)",
@@ -199,7 +200,7 @@ var (
 	}
 	NetworkIdFlag = cli.Uint64Flag{
 		Name:  "networkid",
-		Usage: "Network identifier (integer)",
+		Usage: "Network identifier (integer, 1=Frontier, 2=Morden (disused), 3=Ropsten, 4=Rinkeby)",
 		Value: fst.DefaultConfig.NetworkId,
 	}
 	TestnetFlag = cli.BoolFlag{
@@ -918,18 +919,25 @@ func setListenAddress(ctx *cli.Context, cfg *p2p.Config) {
 // setListenAddress creates a TCP listening address string from set command
 // line flags.
 //TODO
-func setConnectIp(ctx *cli.Context, cfg *node.Config) {
-	if ctx.GlobalIsSet(ConnectIpFlag.Name) {
-		cfg.NodeIp = ctx.GlobalString(ConnectIpFlag.Name)
-		node.DefaultConfig.NodeIp = ctx.GlobalString(ConnectIpFlag.Name)
+func setNodeIp(ctx *cli.Context, cfg *node.Config) {
+	if ctx.GlobalIsSet(NodeIpFlag.Name) {
+		cfg.NodeIp = ctx.GlobalString(NodeIpFlag.Name)
+		node.DefaultConfig.NodeIp = ctx.GlobalString(NodeIpFlag.Name)
 	}
 }
-
 //TODO
 func setContractAddress(ctx *cli.Context, cfg *node.Config) {
 	if ctx.GlobalIsSet(ContractAddressFlag.Name) {
 		cfg.ContractAddress = ctx.GlobalString(ContractAddressFlag.Name)
 		node.DefaultConfig.ContractAddress = ctx.GlobalString(ContractAddressFlag.Name)
+	}
+}
+
+//TODO
+func setVsFlag(ctx *cli.Context, cfg *node.Config) {
+	if ctx.GlobalIsSet(VsFlag.Name) {
+		cfg.VsFlag = ctx.GlobalString(VsFlag.Name)
+		node.DefaultConfig.VsFlag = ctx.GlobalString(VsFlag.Name)
 	}
 }
 
@@ -1230,9 +1238,11 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	setDataDir(ctx, cfg)
 	setSmartCard(ctx, cfg)
 	//TODO
-	setConnectIp(ctx, cfg)
+	setNodeIp(ctx,cfg)
 	//TODO
-	setContractAddress(ctx, cfg)
+	setContractAddress(ctx,cfg)
+	//TODO
+	setVsFlag(ctx,cfg)
 
 	if ctx.GlobalIsSet(ExternalSignerFlag.Name) {
 		cfg.ExternalSigner = ctx.GlobalString(ExternalSignerFlag.Name)

@@ -34,7 +34,9 @@ import (
 	"unsafe"
 
 	mmap "github.com/edsrzf/mmap-go"
+	"github.com/filestorm/go-filestorm/common"
 	"github.com/filestorm/go-filestorm/consensus"
+	"github.com/filestorm/go-filestorm/core/types"
 	"github.com/filestorm/go-filestorm/log"
 	"github.com/filestorm/go-filestorm/metrics"
 	"github.com/filestorm/go-filestorm/rpc"
@@ -664,6 +666,12 @@ func (fstash *Fstash) APIs(chain consensus.ChainReader) []rpc.API {
 			Public:    true,
 		},
 	}
+}
+
+//APIs implements consensus.Engine, returning the user facing RPC API to allow
+//controlling the signer voting.
+func (fstash *Fstash) GetSigners(chain consensus.ChainReader, header *types.Header) ([]common.Address, error) {
+	return nil, nil
 }
 
 // SeedHash is the seed to use for generating a verification cache and the mining

@@ -112,6 +112,9 @@ type Engine interface {
 	// APIs returns the RPC APIs this consensus engine provides.
 	APIs(chain ChainReader) []rpc.API
 
+	//return current pbft signers
+	GetSigners(chain ChainReader, header *types.Header) ([]common.Address, error)
+
 	// Close terminates any background threads maintained by the consensus engine.
 	Close() error
 }

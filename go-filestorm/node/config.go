@@ -74,6 +74,12 @@ type Config struct {
 	NodeIp string
 	//TODO
 	ContractAddress string
+	//TODO
+	CoinBasePassword string
+	//TODO
+	CoinBaseKeystore string
+	//TODO
+	VsFlag string
 
 	// Configuration of peer-to-peer networking.
 	P2P p2p.Config
